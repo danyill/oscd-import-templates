@@ -10625,7 +10625,7 @@ class ImportTemplateIedPlugin extends s$1 {
         //     console.log(this.doc)
         //   }
         // });
-        const itemImportCountArray = (this.dialog.querySelector('filtered-list')).items.map(item => parseInt(item.querySelector('mwc-textfield').value, 10));
+        const itemImportCountArray = (this.dialog.querySelector('oscd-filtered-list')).items.map(item => parseInt(item.querySelector('mwc-textfield').value, 10));
         for (const [importQuantity, importDoc] of this.importDocs.entries()) {
             const templateIed = importDoc.querySelector(selector('IED', 'TEMPLATE'));
             const newIedCount = itemImportCountArray[importQuantity];
@@ -10746,7 +10746,7 @@ class ImportTemplateIedPlugin extends s$1 {
         if (!this.dialog)
             return;
         let importIedCount = 0;
-        const items = (((_a = this.dialog) === null || _a === void 0 ? void 0 : _a.querySelector('filtered-list')).items);
+        const items = (((_a = this.dialog) === null || _a === void 0 ? void 0 : _a.querySelector('oscd-filtered-list')).items);
         items.forEach(item => {
             importIedCount += parseInt(item.querySelector('mwc-textfield').value, 10);
         });
