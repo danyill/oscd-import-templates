@@ -602,10 +602,16 @@ export default class ImportTemplateIedPlugin extends LitElement {
     //   }
     // });
 
-    const itemImportCountArray = (<List>(
+    // const itemImportCountArray = (<List>(
+    //   this.dialog.querySelector('oscd-filtered-list')
+    // )).items.map(item =>
+    //   parseInt(item.querySelector('mwc-textfield')!.value, 10)
+    // );
+
+    const itemImportCountArray = Array.from((<List>(
       this.dialog.querySelector('oscd-filtered-list')
-    )).items.map(item =>
-      parseInt(item.querySelector('mwc-textfield')!.value, 10)
+    )).querySelectorAll('oscd-textfield')).map(item =>
+      parseInt((<TextField>item).value, 10)
     );
 
     for (const [importQuantity, importDoc] of this.importDocs!.entries()) {
@@ -765,7 +771,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
     );
     items.forEach(item => {
       importIedCount += parseInt(
-        item.querySelector('mwc-textfield')!.value,
+        (<TextField>item.querySelector('oscd-textfield')!).value,
         10
       );
     });
