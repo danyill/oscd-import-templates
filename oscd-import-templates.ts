@@ -1,6 +1,7 @@
 import { css, html, LitElement, TemplateResult } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { msg, str } from '@lit/localize';
 
 // import { configureLocalization, localized, msg, str } from '@lit/localize';
@@ -13,21 +14,23 @@ import { Dialog } from '@material/mwc-dialog';
 import { List } from '@material/mwc-list';
 import { ListItemBase } from '@material/mwc-list/mwc-list-item-base';
 import { TextField } from '@material/mwc-textfield';
+
+import { Edit, newEditEvent } from '@openscd/open-scd-core';
+
 import { OscdFilteredList } from './foundation/components/oscd-filtered-list.js';
+import './foundation/components/oscd-textfield.js';
 
-import 'foundation/components/oscd-filtered-list.js';
+// import {,
+//   // newActionEvent,
+//     newLogEvent,
+//   // newPendingStateEvent,
+//   SimpleAction,
+//   ComplexAction,
+// } from 'foundation/';
 
-import {,
-  newActionEvent,
-  newLogEvent,
-  // newPendingStateEvent,
-  SimpleAction,
-  ComplexAction,
-} from 'foundation/';
-
-import {isPublic} from './foundation.js'
-import { createElement } from './foundation/elements/create.js'
-import {selector} from './foundation/identities/selector.js'
+import { isPublic } from './foundation.js';
+import { createElement } from './foundation/elements/create.js';
+import { selector } from './foundation/identities/selector.js';
 
 function uniqueTemplateIedName(doc: XMLDocument, ied: Element): string {
   const [manufacturer, type] = ['manufacturer', 'type'].map(attr =>
@@ -44,7 +47,7 @@ function uniqueTemplateIedName(doc: XMLDocument, ied: Element): string {
   if (!siblingNames.length) return `${nameCore}_01`;
 
   let newName = '';
-  for (let i = 0; i < siblingNames.length + 1; i+=1) {
+  for (let i = 0; i < siblingNames.length + 1; i += 1) {
     const newDigit = (i + 1).toString().padStart(2, '0');
     newName = `${nameCore}_${newDigit}`;
 
@@ -89,22 +92,25 @@ function getSubNetwork(elements: Element[], element: Element): Element {
  * @param doc - SCL document to receive Communication elements
  * @returns Array of actions to transfer the SCL section
  */
-function addCommunicationElements(
-  ied: Element,
-  doc: XMLDocument
-): SimpleAction[] {
-  const actions = [];
+function addCommunicationElements(ied: Element, doc: XMLDocument): Edit[] {
+  const edits = [];
 
   const oldCommunicationElement = doc.querySelector(':root > Communication');
 
-  const communication = oldCommunicationElement || createElement(doc, 'Communication', {});
+  const communication =
+    oldCommunicationElement || createElement(doc, 'Communication', {});
 
   if (!oldCommunicationElement)
-    actions.push({
-      new: {
-        parent: doc.querySelector(':root')!,
-        element: communication,
-      },
+    // edits.push({
+    //   new: {
+    //     parent: doc.querySelector(':root')!,
+    //     element: communication,
+    //   },
+    // });
+    edits.push({
+      parent: doc.querySelector(':root')!,
+      node: communication,
+      reference: null,
     });
 
   const connectedAPs = Array.from(
@@ -125,28 +131,41 @@ function addCommunicationElements(
       )}"]`
     );
 
-    const subNetwork = oldSubNetworkMatch || getSubNetwork(createdSubNetworks, newSubNetwork);
+    const subNetwork =
+      oldSubNetworkMatch || getSubNetwork(createdSubNetworks, newSubNetwork);
     const element = <Element>connectedAP.cloneNode(true);
 
     if (!oldSubNetworkMatch && !createdSubNetworks.includes(subNetwork)) {
-      actions.push({
-        new: {
-          parent: communication,
-          element: subNetwork,
-        },
+      // edits.push({
+      //   new: {
+      //     parent: communication,
+      //     element: subNetwork,
+      //   },
+      // });
+      edits.push({
+        parent: communication,
+        node: subNetwork,
+        reference: null,
       });
+
       createdSubNetworks.push(subNetwork);
     }
 
-    actions.push({
-      new: {
-        parent: subNetwork,
-        element,
-      },
+    edits.push({
+      parent: subNetwork,
+      node: element,
+      reference: null,
     });
+
+    // edits.push({
+    //   new: {
+    //     parent: subNetwork,
+    //     element,
+    //   },
+    // });
   });
 
-  return actions;
+  return edits;
 }
 
 /**
@@ -200,7 +219,7 @@ function addEnumType(
   ied: Element,
   enumType: Element,
   parent: Element
-): SimpleAction | undefined {
+): Edit | undefined {
   if (!hasConnectionToIed(enumType, ied)) return;
 
   const existEnumType = parent.querySelector(
@@ -225,11 +244,17 @@ function addEnumType(
 
   // eslint-disable-next-line consistent-return
   return {
-    new: {
-      parent,
-      element: enumType,
-    },
+    parent,
+    node: enumType,
+    reference: null,
   };
+  // eslint-disable-next-line consistent-return
+  // return {
+  //   new: {
+  //     parent,
+  //     element: enumType,
+  //   },
+  // };
 }
 
 /**
@@ -244,7 +269,7 @@ function addDAType(
   ied: Element,
   daType: Element,
   parent: Element
-): SimpleAction | undefined {
+): Edit | undefined {
   if (!hasConnectionToIed(daType, ied)) return;
 
   const existDAType = parent.querySelector(
@@ -269,11 +294,17 @@ function addDAType(
 
   // eslint-disable-next-line consistent-return
   return {
-    new: {
-      parent,
-      element: daType,
-    },
+    parent,
+    node: daType,
+    reference: null,
   };
+
+  // return {
+  //   new: {
+  //     parent,
+  //     element: daType,
+  //   },
+  // };
 }
 
 /**
@@ -288,7 +319,7 @@ function addDOType(
   ied: Element,
   doType: Element,
   parent: Element
-): SimpleAction | undefined {
+): Edit | undefined {
   if (!hasConnectionToIed(doType, ied)) return;
 
   const existDOType = parent.querySelector(
@@ -313,11 +344,17 @@ function addDOType(
 
   // eslint-disable-next-line consistent-return
   return {
-    new: {
-      parent,
-      element: doType,
-    },
+    parent,
+    node: doType,
+    reference: null,
   };
+  // eslint-disable-next-line consistent-return
+  // return {
+  //   new: {
+  //     parent,
+  //     element: doType,
+  //   },
+  // };
 }
 
 /**
@@ -332,7 +369,7 @@ function addLNodeType(
   ied: Element,
   lNodeType: Element,
   parent: Element
-): SimpleAction | undefined {
+): Edit | undefined {
   if (!hasConnectionToIed(lNodeType, ied)) return;
 
   const existLNodeType = parent.querySelector(
@@ -355,11 +392,17 @@ function addLNodeType(
   }
 
   // eslint-disable-next-line consistent-return
+  // return {
+  //   new: {
+  //     parent,
+  //     element: lNodeType,
+  //   },
+  // };
+  // eslint-disable-next-line consistent-return
   return {
-    new: {
-      parent,
-      element: lNodeType,
-    },
+    parent,
+    node: lNodeType,
+    reference: null,
   };
 }
 
@@ -371,47 +414,52 @@ function addLNodeType(
  * @param doc - project where SCL datatype templates
  * @returns an array of actions consisting of LNodeType, DOType, DAType and EnumTypes
  */
-function addDataTypeTemplates(ied: Element, doc: XMLDocument): SimpleAction[] {
-  const actions: (SimpleAction | undefined)[] = [];
+function addDataTypeTemplates(ied: Element, doc: XMLDocument): Edit[] {
+  const edits: Edit[] | undefined = [];
 
   const dataTypeTemplates = doc.querySelector(':root > DataTypeTemplates')
     ? doc.querySelector(':root > DataTypeTemplates')!
     : createElement(doc, 'DataTypeTemplates', {});
 
   if (!dataTypeTemplates.parentElement) {
-    actions.push({
-      new: {
-        parent: doc.querySelector('SCL')!,
-        element: dataTypeTemplates,
-      },
+    // edits.push({
+    //   new: {
+    //     parent: doc.querySelector('SCL')!,
+    //     element: dataTypeTemplates,
+    //   },
+    // });
+    edits.push({
+      parent: doc.querySelector('SCL')!,
+      node: dataTypeTemplates,
+      reference: null,
     });
   }
 
   ied.ownerDocument
     .querySelectorAll(':root > DataTypeTemplates > LNodeType')
     .forEach(lNodeType =>
-      actions.push(addLNodeType(ied, lNodeType, dataTypeTemplates!))
+      edits.push(<Edit>addLNodeType(ied, lNodeType, dataTypeTemplates!))
     );
 
   ied.ownerDocument
     .querySelectorAll(':root > DataTypeTemplates > DOType')
     .forEach(doType =>
-      actions.push(addDOType(ied, doType, dataTypeTemplates!))
+      edits.push(<Edit>addDOType(ied, doType, dataTypeTemplates!))
     );
 
   ied.ownerDocument
     .querySelectorAll(':root > DataTypeTemplates > DAType')
     .forEach(daType =>
-      actions.push(addDAType(ied, daType, dataTypeTemplates!))
+      edits.push(<Edit>addDAType(ied, daType, dataTypeTemplates!))
     );
 
   ied.ownerDocument
     .querySelectorAll(':root > DataTypeTemplates > EnumType')
     .forEach(enumType =>
-      actions.push(addEnumType(ied, enumType, dataTypeTemplates!))
+      edits.push(<Edit>addEnumType(ied, enumType, dataTypeTemplates!))
     );
 
-  return <SimpleAction[]>actions.filter(item => item !== undefined);
+  return <Edit[]>edits.filter(item => item !== undefined);
 }
 
 // function isIedNameUnique(ied: Element, doc: Document): boolean {
@@ -433,16 +481,17 @@ function addDataTypeTemplates(ied: Element, doc: XMLDocument): SimpleAction[] {
 
 function validateOrReplaceInput(tf: TextField): void {
   /* eslint no-param-reassign: ["error", { "props": false }] */
-  if (!(parseInt(tf.value, 10) >= 0 && parseInt(tf.value, 10) <= 99)) tf.value = '1';
+  if (!(parseInt(tf.value, 10) >= 0 && parseInt(tf.value, 10) <= 99))
+    tf.value = '1';
 }
 
-function sleep(milliseconds: number) {
-  const date = Date.now();
-  let currentDate = null;
-  do {
-    currentDate = Date.now();
-  } while (currentDate - date < milliseconds);
-}
+// function sleep(milliseconds: number) {
+//   const date = Date.now();
+//   let currentDate = null;
+//   do {
+//     currentDate = Date.now();
+//   } while (currentDate - date < milliseconds);
+// }
 
 export default class ImportTemplateIedPlugin extends LitElement {
   @property({ attribute: false })
@@ -452,10 +501,10 @@ export default class ImportTemplateIedPlugin extends LitElement {
   importDocs?: XMLDocument[] = [];
 
   @query('#importTemplateIED-plugin-input') pluginFileUI!: HTMLInputElement;
-  
+
   @query('mwc-dialog') dialog!: Dialog;
 
-  @query('filtered-list') filteredList!: OscdFilteredList;
+  @query('oscd-filtered-list') filteredList!: OscdFilteredList;
 
   @property({ attribute: false })
   inputSelected = false;
@@ -465,10 +514,10 @@ export default class ImportTemplateIedPlugin extends LitElement {
 
   failFast = false;
 
-  constructor() {
-    super();
-    this.play = this.play.bind(this);
-  }
+  // constructor() {
+  //   super();
+  //   // this.play = this.play.bind(this);
+  // }
 
   async run(): Promise<void> {
     this.importDocs = [];
@@ -491,7 +540,6 @@ export default class ImportTemplateIedPlugin extends LitElement {
     // OpenSCD as it is now which could use significant memory.
     // TODO: In open-scd core update this to allow including in undo/redo.
 
-
     updateNamespaces(
       this.doc.documentElement,
       ied.ownerDocument.documentElement
@@ -502,30 +550,36 @@ export default class ImportTemplateIedPlugin extends LitElement {
       const newIedName = uniqueTemplateIedName(this.doc, iedCopy);
       iedCopy.setAttribute('name', newIedName);
 
-      let actions: SimpleAction[] = addDataTypeTemplates(iedCopy, this.doc);
+      let edits: Edit[] = addDataTypeTemplates(iedCopy, this.doc);
 
       Array.from(
         iedCopy.ownerDocument.querySelectorAll(
           ':root > Communication > SubNetwork > ConnectedAP[iedName="TEMPLATE"]'
         )
       ).forEach(connectedAp => connectedAp.setAttribute('iedName', newIedName));
-      actions = actions.concat(addCommunicationElements(iedCopy, this.doc));
+      edits = edits.concat(addCommunicationElements(iedCopy, this.doc));
 
-      actions.push({
-        new: {
-          parent: this.doc!.querySelector(':root')!,
-          element: iedCopy,
-        },
+      // edits.push({
+      //   new: {
+      //     parent: this.doc!.querySelector(':root')!,
+      //     element: iedCopy,
+      //   },
+      // });
+      edits.push({
+        parent: this.doc!.querySelector(':root')!,
+        node: iedCopy,
+        reference: null,
       });
 
-      const complexAction: ComplexAction = {
-        actions: actions,
-        title: msg(str`'Imported ${newIedName} of type ${ied.getAttribute('type') ?? 'Unknown'}`),
-      };
+      // const complexAction: ComplexAction = {
+      //   actions: actions,
+      //   title: msg(str`'Imported ${newIedName} of type ${ied.getAttribute('type') ?? 'Unknown'}`),
+      // };
 
       // sleep(1000)
       // if (this.failFast) return
-      this.dispatchEvent(newActionEvent(complexAction));
+      this.dispatchEvent(newEditEvent(edits));
+      // this.dispatchEvent(newEditEvent(complexAction));
       // eslint-disable-next-line no-await-in-loop
       await this.docUpdate();
       // if (this.failFast) return
@@ -533,25 +587,26 @@ export default class ImportTemplateIedPlugin extends LitElement {
     }
   }
 
-  private play(){
-    console.log(this.doc)
-  }
-  
-  private async importTemplateIEDs(): Promise<void> {
-    window.addEventListener('log', event => {
-      console.log(event.detail);
-      if (event.detail.kind === 'warning') {
-        this.failFast = true
-        console.log('please give up')
-        this.play()
-        console.log(this.doc)
-      }
-    });
+  // private play() {
+  //   console.log(this.doc);
+  // }
 
+  private async importTemplateIEDs(): Promise<void> {
+    // window.addEventListener('log', event => {
+    //   console.log(event.detail);
+    //   if (event.detail.kind === 'warning') {
+    //     this.failFast = true
+    //     console.log('please give up')
+    //     this.play()
+    //     console.log(this.doc)
+    //   }
+    // });
 
     const itemImportCountArray = (<List>(
       this.dialog.querySelector('filtered-list')
-    )).items.map(item => parseInt(item.querySelector('mwc-textfield')!.value, 10));
+    )).items.map(item =>
+      parseInt(item.querySelector('mwc-textfield')!.value, 10)
+    );
 
     for (const [importQuantity, importDoc] of this.importDocs!.entries()) {
       const templateIed = importDoc.querySelector(selector('IED', 'TEMPLATE'))!;
@@ -564,35 +619,39 @@ export default class ImportTemplateIedPlugin extends LitElement {
     this.dialog.close();
   }
 
+  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars
   public isImportValid(templateDoc: Document, filename: string): boolean {
     if (!templateDoc) {
-      this.dispatchEvent(
-        newLogEvent({
-          kind: 'error',
-          title: msg(str`Could not load file in ${filename}`),
-        })
-      );
+      // TODO:
+      // this.dispatchEvent(
+      //   newLogEvent({
+      //     kind: 'error',
+      //     title: msg(str`Could not load file in ${filename}`),
+      //   })
+      // );
       return false;
     }
 
     if (templateDoc.querySelector('parsererror')) {
-      this.dispatchEvent(
-        newLogEvent({
-          kind: 'error',
-          title: msg(str`Parser error in ${filename}`),
-        })
-      );
+      // TODO:
+      // this.dispatchEvent(
+      //   newLogEvent({
+      //     kind: 'error',
+      //     title: msg(str`Parser error in ${filename}`),
+      //   })
+      // );
       return false;
     }
 
     const ied = templateDoc.querySelector(':root > IED[name="TEMPLATE"]');
     if (!ied) {
-      this.dispatchEvent(
-        newLogEvent({
-          kind: 'error',
-          title: msg(str`No Template IED element in the file ${filename}`),
-        })
-      );
+      // TODO:
+      // this.dispatchEvent(
+      //   newLogEvent({
+      //     kind: 'error',
+      //     title: msg(str`No Template IED element in the file ${filename}`),
+      //   })
+      // );
       return false;
     }
     return true;
@@ -614,23 +673,31 @@ export default class ImportTemplateIedPlugin extends LitElement {
       if (validTemplate) this.importDocs!.push(templateDoc);
     });
 
-
-      Promise.allSettled(promises).then(async () => {
-      this.inputSelected = false;
-      await this.render();
-      (<TextField[]><unknown>this.filteredList.querySelectorAll('mwc-textfield')).forEach(textField =>
+    Promise.allSettled(promises).then(async () => {
+      this.inputSelected = true;
+      // render the dialog after processing imports
+      this.render();
+      await this.updateComplete;
+      // listener to validate textfield input and display total IEDs
+      (<TextField[]>(
+        (<unknown>this.filteredList.querySelectorAll('oscd-textfield'))
+      )).forEach(textField =>
         textField.addEventListener('input', () => {
           validateOrReplaceInput(textField);
           this.getSumOfIedsToCreate();
         })
       );
-      this.dialog.show();
-    })
+      
+    }).then(() => this.dialog.show());
+    // .then(()=>{
+      
+    // })
 
-}
+    
+  }
 
   protected renderInput(): TemplateResult {
-    this.inputSelected = true;
+    // this.inputSelected = true;
     return html`<input multiple @change=${(event: Event) => {
       this.onLoadFiles(event);
       (<HTMLInputElement>event.target).value = '';
@@ -677,7 +744,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
     return html`<mwc-list-item twoline value="${firstLine}" graphic="icon">
       <span class="first-line">${firstLine}</span>
       <span class="second-line" slot="secondary">${secondLine}</span>
-      <mwc-textfield
+      <oscd-textfield
         class="template-count"
         min="0"
         max="99"
@@ -685,7 +752,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
         type="number"
         value="1"
         required
-      ></mwc-textfield>
+      ></oscd-textfield>
       <mwc-icon slot="graphic">developer_board</mwc-icon>
     </mwc-list-item>`;
   }
@@ -696,9 +763,11 @@ export default class ImportTemplateIedPlugin extends LitElement {
     const items = <ListItemBase[]>(
       (<List>this.dialog?.querySelector('filtered-list')).items
     );
-    items.forEach(
-      item => {
-        (importIedCount += parseInt(item.querySelector('mwc-textfield')!.value, 10))
+    items.forEach(item => {
+      importIedCount += parseInt(
+        item.querySelector('mwc-textfield')!.value,
+        10
+      );
     });
     this.importIedCount = importIedCount;
   }
@@ -732,7 +801,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
   }
 
   static styles = css`
-    input {
+    /* input {
       width: 0;
       height: 0;
       opacity: 0;
@@ -770,6 +839,6 @@ export default class ImportTemplateIedPlugin extends LitElement {
         overflow: hidden;
         text-overflow: clip;
       }
-    }
+    } */
   `;
 }
