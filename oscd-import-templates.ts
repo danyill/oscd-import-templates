@@ -603,7 +603,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
     // });
 
     const itemImportCountArray = (<List>(
-      this.dialog.querySelector('filtered-list')
+      this.dialog.querySelector('oscd-filtered-list')
     )).items.map(item =>
       parseInt(item.querySelector('mwc-textfield')!.value, 10)
     );
@@ -761,7 +761,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
     if (!this.dialog) return;
     let importIedCount = 0;
     const items = <ListItemBase[]>(
-      (<List>this.dialog?.querySelector('filtered-list')).items
+      (<List>this.dialog?.querySelector('oscd-filtered-list')).items
     );
     items.forEach(item => {
       importIedCount += parseInt(
