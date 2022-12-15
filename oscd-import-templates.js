@@ -10630,7 +10630,7 @@ class ImportTemplateIedPlugin extends s$1 {
         // )).items.map(item =>
         //   parseInt(item.querySelector('mwc-textfield')!.value, 10)
         // );
-        const itemImportCountArray = Array.from((this.dialog.querySelector('oscd-filtered-list')).querySelectorAll('oscd-textfield')).map(item => parseInt(item.value, 10));
+        const itemImportCountArray = Array.from(this.dialog.querySelector('oscd-filtered-list').querySelectorAll('oscd-textfield')).map(item => parseInt(item.value, 10));
         for (const [importQuantity, importDoc] of this.importDocs.entries()) {
             const templateIed = importDoc.querySelector(selector('IED', 'TEMPLATE'));
             const newIedCount = itemImportCountArray[importQuantity];
@@ -10685,7 +10685,8 @@ class ImportTemplateIedPlugin extends s$1 {
             if (validTemplate)
                 this.importDocs.push(templateDoc);
         });
-        Promise.allSettled(promises).then(async () => {
+        Promise.allSettled(promises)
+            .then(async () => {
             this.inputSelected = true;
             // render the dialog after processing imports
             this.render();
@@ -10695,7 +10696,8 @@ class ImportTemplateIedPlugin extends s$1 {
                 validateOrReplaceInput(textField);
                 this.getSumOfIedsToCreate();
             }));
-        }).then(() => this.dialog.show());
+        })
+            .then(() => this.dialog.show());
         // .then(()=>{
         // })
     }
@@ -10751,7 +10753,8 @@ class ImportTemplateIedPlugin extends s$1 {
         if (!this.dialog)
             return;
         let importIedCount = 0;
-        const items = (((_a = this.dialog) === null || _a === void 0 ? void 0 : _a.querySelector('oscd-filtered-list')).items);
+        // can't use items for some reason!
+        const items = (_a = this.dialog) === null || _a === void 0 ? void 0 : _a.querySelector('oscd-filtered-list').querySelectorAll('mwc-item');
         items.forEach(item => {
             importIedCount += parseInt(item.querySelector('oscd-textfield').value, 10);
         });
