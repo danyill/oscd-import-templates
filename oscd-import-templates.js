@@ -165,7 +165,7 @@ loading.resolve();
 let msg = defaultMsg;
 
 class ImportTemplateIedPlugin extends s {
-    run() {
+    async run() {
         this.dialog.show();
     }
     render() {

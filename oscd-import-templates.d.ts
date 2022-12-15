@@ -3,6 +3,6 @@ import { Dialog } from '@material/mwc-dialog';
 export default class ImportTemplateIedPlugin extends LitElement {
     doc: XMLDocument;
     dialog: Dialog;
-    run(): void;
+    run(): Promise<void>;
     render(): TemplateResult;
 }
