@@ -12,7 +12,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
   @query('.dialog')
   dialog!: Dialog;
 
-  run(): void {
+  async run(): Promise<void> {
     this.dialog.show();
   }
 
