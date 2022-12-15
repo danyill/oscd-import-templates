@@ -10786,7 +10786,7 @@ class ImportTemplateIedPlugin extends s$1 {
     }
 }
 ImportTemplateIedPlugin.styles = i$5 `
-    /* input {
+    input {
       width: 0;
       height: 0;
       opacity: 0;
@@ -10824,7 +10824,7 @@ ImportTemplateIedPlugin.styles = i$5 `
         overflow: hidden;
         text-overflow: clip;
       }
-    } */
+    }
   `;
 __decorate([
     e$5({ attribute: false })
