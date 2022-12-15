@@ -10,14 +10,15 @@ import { msg, str } from '@lit/localize';
 import '@material/mwc-list/mwc-check-list-item';
 import '@material/dialog';
 import '@material/mwc-button';
-import { Dialog } from '@material/mwc-dialog';
-import { List } from '@material/mwc-list';
-import { ListItemBase } from '@material/mwc-list/mwc-list-item-base';
-import { TextField } from '@material/mwc-textfield';
+import type { Dialog } from '@material/mwc-dialog';
+import type { List } from '@material/mwc-list';
+// import { ListItemBase } from '@material/mwc-list/mwc-list-item-base';
+import type { TextField } from '@material/mwc-textfield';
 
-import { Edit, newEditEvent } from '@openscd/open-scd-core';
+import type { Edit } from '@openscd/open-scd-core';
+import { newEditEvent } from '@openscd/open-scd-core';
+import type { OscdFilteredList } from './foundation/components/oscd-filtered-list.js';
 
-import { OscdFilteredList } from './foundation/components/oscd-filtered-list.js';
 import './foundation/components/oscd-textfield.js';
 
 // import {,
@@ -101,12 +102,6 @@ function addCommunicationElements(ied: Element, doc: XMLDocument): Edit[] {
     oldCommunicationElement || createElement(doc, 'Communication', {});
 
   if (!oldCommunicationElement)
-    // edits.push({
-    //   new: {
-    //     parent: doc.querySelector(':root')!,
-    //     element: communication,
-    //   },
-    // });
     edits.push({
       parent: doc.querySelector(':root')!,
       node: communication,
@@ -136,12 +131,6 @@ function addCommunicationElements(ied: Element, doc: XMLDocument): Edit[] {
     const element = <Element>connectedAP.cloneNode(true);
 
     if (!oldSubNetworkMatch && !createdSubNetworks.includes(subNetwork)) {
-      // edits.push({
-      //   new: {
-      //     parent: communication,
-      //     element: subNetwork,
-      //   },
-      // });
       edits.push({
         parent: communication,
         node: subNetwork,
@@ -156,13 +145,6 @@ function addCommunicationElements(ied: Element, doc: XMLDocument): Edit[] {
       node: element,
       reference: null,
     });
-
-    // edits.push({
-    //   new: {
-    //     parent: subNetwork,
-    //     element,
-    //   },
-    // });
   });
 
   return edits;
@@ -248,13 +230,6 @@ function addEnumType(
     node: enumType,
     reference: null,
   };
-  // eslint-disable-next-line consistent-return
-  // return {
-  //   new: {
-  //     parent,
-  //     element: enumType,
-  //   },
-  // };
 }
 
 /**
@@ -298,13 +273,6 @@ function addDAType(
     node: daType,
     reference: null,
   };
-
-  // return {
-  //   new: {
-  //     parent,
-  //     element: daType,
-  //   },
-  // };
 }
 
 /**
@@ -348,13 +316,6 @@ function addDOType(
     node: doType,
     reference: null,
   };
-  // eslint-disable-next-line consistent-return
-  // return {
-  //   new: {
-  //     parent,
-  //     element: doType,
-  //   },
-  // };
 }
 
 /**
@@ -392,13 +353,6 @@ function addLNodeType(
   }
 
   // eslint-disable-next-line consistent-return
-  // return {
-  //   new: {
-  //     parent,
-  //     element: lNodeType,
-  //   },
-  // };
-  // eslint-disable-next-line consistent-return
   return {
     parent,
     node: lNodeType,
@@ -422,12 +376,6 @@ function addDataTypeTemplates(ied: Element, doc: XMLDocument): Edit[] {
     : createElement(doc, 'DataTypeTemplates', {});
 
   if (!dataTypeTemplates.parentElement) {
-    // edits.push({
-    //   new: {
-    //     parent: doc.querySelector('SCL')!,
-    //     element: dataTypeTemplates,
-    //   },
-    // });
     edits.push({
       parent: doc.querySelector('SCL')!,
       node: dataTypeTemplates,
@@ -608,11 +556,11 @@ export default class ImportTemplateIedPlugin extends LitElement {
     //   parseInt(item.querySelector('mwc-textfield')!.value, 10)
     // );
 
-    const itemImportCountArray = Array.from((<List>(
-      this.dialog.querySelector('oscd-filtered-list')
-    )).querySelectorAll('oscd-textfield')).map(item =>
-      parseInt((<TextField>item).value, 10)
-    );
+    const itemImportCountArray = Array.from(
+      (<List>this.dialog.querySelector('oscd-filtered-list')).querySelectorAll(
+        'oscd-textfield'
+      )
+    ).map(item => parseInt((<TextField>item).value, 10));
 
     for (const [importQuantity, importDoc] of this.importDocs!.entries()) {
       const templateIed = importDoc.querySelector(selector('IED', 'TEMPLATE'))!;
@@ -679,31 +627,26 @@ export default class ImportTemplateIedPlugin extends LitElement {
       if (validTemplate) this.importDocs!.push(templateDoc);
     });
 
-    Promise.allSettled(promises).then(async () => {
-      this.inputSelected = true;
-      // render the dialog after processing imports
-      this.render();
-      await this.updateComplete;
-      // listener to validate textfield input and display total IEDs
-      (<TextField[]>(
-        (<unknown>this.filteredList.querySelectorAll('oscd-textfield'))
-      )).forEach(textField =>
-        textField.addEventListener('input', () => {
-          validateOrReplaceInput(textField);
-          this.getSumOfIedsToCreate();
-        })
-      );
-      
-    }).then(() => this.dialog.show());
-    // .then(()=>{
-      
-    // })
-
-    
+    Promise.allSettled(promises)
+      .then(async () => {
+        this.inputSelected = true;
+        // render the dialog after processing imports
+        this.render();
+        await this.updateComplete;
+        // listener to validate textfield input and display total IEDs
+        (<TextField[]>(
+          (<unknown>this.filteredList.querySelectorAll('oscd-textfield'))
+        )).forEach(textField =>
+          textField.addEventListener('input', () => {
+            validateOrReplaceInput(textField);
+            this.getSumOfIedsToCreate();
+          })
+        );
+      })
+      .then(() => this.dialog.show());
   }
 
   protected renderInput(): TemplateResult {
-    // this.inputSelected = true;
     return html`<input multiple @change=${(event: Event) => {
       this.onLoadFiles(event);
       (<HTMLInputElement>event.target).value = '';
@@ -766,9 +709,10 @@ export default class ImportTemplateIedPlugin extends LitElement {
   protected getSumOfIedsToCreate(): void {
     if (!this.dialog) return;
     let importIedCount = 0;
-    const items = <ListItemBase[]>(
-      (<List>this.dialog?.querySelector('oscd-filtered-list')).items
-    );
+    // can't use items for some reason!
+    const items = this.dialog
+      ?.querySelector('oscd-filtered-list')!
+      .querySelectorAll('mwc-item');
     items.forEach(item => {
       importIedCount += parseInt(
         (<TextField>item.querySelector('oscd-textfield')!).value,
@@ -807,7 +751,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
   }
 
   static styles = css`
-    /* input {
+    input {
       width: 0;
       height: 0;
       opacity: 0;
@@ -845,6 +789,6 @@ export default class ImportTemplateIedPlugin extends LitElement {
         overflow: hidden;
         text-overflow: clip;
       }
-    } */
+    }
   `;
 }
