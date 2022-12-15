@@ -20,7 +20,7 @@ import { newEditEvent } from '@openscd/open-scd-core';
 import type { OscdFilteredList } from './foundation/components/oscd-filtered-list.js';
 
 import './foundation/components/oscd-textfield.js';
-
+import type { OscdTextfield } from './foundation/components/oscd-textfield.js';
 // import {,
 //   // newActionEvent,
 //     newLogEvent,
@@ -32,6 +32,7 @@ import './foundation/components/oscd-textfield.js';
 import { isPublic } from './foundation.js';
 import { createElement } from './foundation/elements/create.js';
 import { selector } from './foundation/identities/selector.js';
+
 
 function uniqueTemplateIedName(doc: XMLDocument, ied: Element): string {
   const [manufacturer, type] = ['manufacturer', 'type'].map(attr =>
@@ -427,7 +428,7 @@ function addDataTypeTemplates(ied: Element, doc: XMLDocument): Edit[] {
 //   ).forEach(item => (item.selected = false));
 // }
 
-function validateOrReplaceInput(tf: TextField): void {
+function validateOrReplaceInput(tf: OscdTextfield): void {
   /* eslint no-param-reassign: ["error", { "props": false }] */
   if (!(parseInt(tf.value, 10) >= 0 && parseInt(tf.value, 10) <= 99))
     tf.value = '1';
@@ -627,23 +628,36 @@ export default class ImportTemplateIedPlugin extends LitElement {
       if (validTemplate) this.importDocs!.push(templateDoc);
     });
 
-    Promise.allSettled(promises)
-      .then(async () => {
-        this.inputSelected = true;
-        // render the dialog after processing imports
-        this.render();
-        await this.updateComplete;
-        // listener to validate textfield input and display total IEDs
-        (<TextField[]>(
-          (<unknown>this.filteredList.querySelectorAll('oscd-textfield'))
-        )).forEach(textField =>
-          textField.addEventListener('input', () => {
-            validateOrReplaceInput(textField);
-            this.getSumOfIedsToCreate();
-          })
-        );
-      })
-      .then(() => this.dialog.show());
+    Promise.allSettled(promises).then(async () => {
+      this.inputSelected = true;
+      this.render();
+      await this.updateComplete
+      this.filteredList.querySelectorAll('oscd-textfield').forEach(textField =>
+        textField.addEventListener('input', () => {
+          validateOrReplaceInput(<Element>textField);
+          this.getSumOfIedsToCreate();
+        })
+      );
+      this.dialog.show();
+    });
+
+    // Promise.allSettled(promises)
+    //   .then(async () => {
+    //     this.inputSelected = true;
+    //     // render the dialog after processing imports
+    //     this.render();
+    //     await this.updateComplete;
+    //     // listener to validate textfield input and display total IEDs
+    //     (<TextField[]>(
+    //       (<unknown>this.filteredList.querySelectorAll('oscd-textfield'))
+    //     )).forEach(textField =>
+    //       textField.addEventListener('input', () => {
+    //         validateOrReplaceInput(textField);
+    //         this.getSumOfIedsToCreate();
+    //       })
+    //     );
+    //   })
+    //   .then(() => this.dialog.show());
   }
 
   protected renderInput(): TemplateResult {
@@ -746,7 +760,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
 
   render(): TemplateResult {
     return this.inputSelected
-      ? html`${this.renderIedSelection()}${this.renderInput()}`
+      ? html`${this.renderIedSelection()}`
       : html`${this.renderInput()}`;
   }
 
