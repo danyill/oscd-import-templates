@@ -33,7 +33,6 @@ import { isPublic } from './foundation.js';
 import { createElement } from './foundation/elements/create.js';
 import { selector } from './foundation/identities/selector.js';
 
-
 function uniqueTemplateIedName(doc: XMLDocument, ied: Element): string {
   const [manufacturer, type] = ['manufacturer', 'type'].map(attr =>
     ied.getAttribute(attr)?.replace(/[^A-Za-z0-9_]/, '')
@@ -229,7 +228,7 @@ function addEnumType(
   return {
     parent,
     node: enumType,
-    reference: null,
+    reference: parent.querySelector('EnumType'),
   };
 }
 
@@ -272,7 +271,7 @@ function addDAType(
   return {
     parent,
     node: daType,
-    reference: null,
+    reference: parent.querySelector('DAType'),
   };
 }
 
@@ -315,7 +314,7 @@ function addDOType(
   return {
     parent,
     node: doType,
-    reference: null,
+    reference: parent.querySelector('DOType'),
   };
 }
 
@@ -357,7 +356,7 @@ function addLNodeType(
   return {
     parent,
     node: lNodeType,
-    reference: null,
+    reference: parent.querySelector('LNodeType'),
   };
 }
 
@@ -517,7 +516,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
       edits.push({
         parent: this.doc!.querySelector(':root')!,
         node: iedCopy,
-        reference: null,
+        reference: this.doc!.querySelector('IED') ?? this.doc!.querySelector('Communication')! ?? this.doc.querySelector(':root'),
       });
 
       // const complexAction: ComplexAction = {
@@ -551,6 +550,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
     //   }
     // });
 
+    // can't use items
     // const itemImportCountArray = (<List>(
     //   this.dialog.querySelector('oscd-filtered-list')
     // )).items.map(item =>
@@ -631,10 +631,10 @@ export default class ImportTemplateIedPlugin extends LitElement {
     Promise.allSettled(promises).then(async () => {
       this.inputSelected = true;
       this.render();
-      await this.updateComplete
+      await this.updateComplete;
       this.filteredList.querySelectorAll('oscd-textfield').forEach(textField =>
         textField.addEventListener('input', () => {
-          validateOrReplaceInput(<Element>textField);
+          validateOrReplaceInput(<OscdTextfield>textField);
           this.getSumOfIedsToCreate();
         })
       );
@@ -726,7 +726,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
     // can't use items for some reason!
     const items = this.dialog
       ?.querySelector('oscd-filtered-list')!
-      .querySelectorAll('mwc-item');
+      .querySelectorAll('mwc-list-item');
     items.forEach(item => {
       importIedCount += parseInt(
         (<TextField>item.querySelector('oscd-textfield')!).value,
@@ -758,9 +758,13 @@ export default class ImportTemplateIedPlugin extends LitElement {
     </mwc-dialog>`;
   }
 
+  protected firstUpdated(): void {
+    this.parentElement?.setAttribute('style', 'opacity: 1');
+  }
+
   render(): TemplateResult {
     return this.inputSelected
-      ? html`${this.renderIedSelection()}`
+      ? html`${this.renderIedSelection()}${this.renderInput()}`
       : html`${this.renderInput()}`;
   }
 
