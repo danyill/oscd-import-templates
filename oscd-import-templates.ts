@@ -516,7 +516,10 @@ export default class ImportTemplateIedPlugin extends LitElement {
       edits.push({
         parent: this.doc!.querySelector(':root')!,
         node: iedCopy,
-        reference: this.doc!.querySelector('IED') ?? this.doc!.querySelector('Communication')! ?? this.doc.querySelector(':root'),
+        reference:
+          this.doc!.querySelector('IED') ??
+          this.doc!.querySelector('Communication')! ??
+          this.doc.querySelector(':root'),
       });
 
       // const complexAction: ComplexAction = {
@@ -759,6 +762,8 @@ export default class ImportTemplateIedPlugin extends LitElement {
   }
 
   protected firstUpdated(): void {
+    // TODO: Remove after OpenSCD core updated
+    // https://github.com/openscd/open-scd-core/issues/77
     this.parentElement?.setAttribute('style', 'opacity: 1');
   }
 
@@ -775,11 +780,21 @@ export default class ImportTemplateIedPlugin extends LitElement {
       opacity: 0;
     }
 
+    /* oscd-filtered-list {
+      width: 700px;
+      display: block;
+      overflow: none;
+    }
+
+    oscd-textfield {
+      width: 150px;
+    } */
+
     .close-button {
       --mdc-theme-primary: var(--mdc-theme-error);
     }
 
-    .first-line,
+    /* .first-line,
     .second-line {
       display: inline-flex;
       overflow: hidden;
@@ -794,7 +809,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
 
     mwc-list-item {
       display: flex;
-    }
+    } */
 
     mwc-list-item.hidden {
       display: none;
