@@ -35,7 +35,7 @@
     "@material/mwc-select": "^0.27.0",
     "@material/mwc-switch": "^0.27.0",
     "@material/mwc-textfield": "^0.27.0",
-    "@openscd/open-scd-core": "^0.0.1-rc2.8"
+    "@openscd/open-scd-core": "^0.0.2"
   },
   "devDependencies": {
     "@custom-elements-manifest/analyzer": "^0.6.6",

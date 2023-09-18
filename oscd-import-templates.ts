@@ -1,33 +1,17 @@
 import { css, html, LitElement, TemplateResult } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { msg, str } from '@lit/localize';
+import { msg } from '@lit/localize';
 
-// import { configureLocalization, localized, msg, str } from '@lit/localize';
-// import { get, translate } from 'lit-translate';
+import { newEditEvent } from '@openscd/open-scd-core';
+import type { Dialog } from '@material/mwc-dialog';
+import type { Edit } from '@openscd/open-scd-core';
+import type { OscdTextfield } from './foundation/components/oscd-textfield.js';
 
-import '@material/mwc-list/mwc-check-list-item';
 import '@material/dialog';
 import '@material/mwc-button';
-import type { Dialog } from '@material/mwc-dialog';
-import type { List } from '@material/mwc-list';
-// import { ListItemBase } from '@material/mwc-list/mwc-list-item-base';
-import type { TextField } from '@material/mwc-textfield';
-
-import type { Edit } from '@openscd/open-scd-core';
-import { newEditEvent } from '@openscd/open-scd-core';
-import type { OscdFilteredList } from './foundation/components/oscd-filtered-list.js';
 
 import './foundation/components/oscd-textfield.js';
-import type { OscdTextfield } from './foundation/components/oscd-textfield.js';
-// import {,
-//   // newActionEvent,
-//     newLogEvent,
-//   // newPendingStateEvent,
-//   SimpleAction,
-//   ComplexAction,
-// } from 'foundation/';
 
 import { isPublic } from './foundation.js';
 import { createElement } from './foundation/elements/create.js';
@@ -56,6 +40,48 @@ function uniqueTemplateIedName(doc: XMLDocument, ied: Element): string {
   }
 
   return newName;
+}
+
+function getTemplateIedDescription(doc: Document): {
+  firstLine: string;
+  secondLine: string;
+} {
+  const templateIed = doc?.querySelector(':root > IED[name="TEMPLATE"]');
+  const [
+    manufacturer,
+    type,
+    desc,
+    configVersion,
+    originalSclVersion,
+    originalSclRevision,
+    originalSclRelease,
+  ] = [
+    'manufacturer',
+    'type',
+    'desc',
+    'configVersion',
+    'originalSclVersion',
+    'originalSclRevision',
+    'originalSclRelease',
+  ].map(attr => templateIed?.getAttribute(attr));
+
+  const firstLine = [manufacturer, type]
+    .filter(val => val !== null)
+    .join(' - ');
+
+  const schemaInformation = [
+    originalSclVersion,
+    originalSclRevision,
+    originalSclRelease,
+  ]
+    .filter(val => val !== null)
+    .join('');
+
+  const secondLine = [desc, configVersion, schemaInformation]
+    .filter(val => val !== null)
+    .join(' - ');
+
+  return { firstLine, secondLine };
 }
 
 /**
@@ -410,36 +436,12 @@ function addDataTypeTemplates(ied: Element, doc: XMLDocument): Edit[] {
   return <Edit[]>edits.filter(item => item !== undefined);
 }
 
-// function isIedNameUnique(ied: Element, doc: Document): boolean {
-//   const existingIedNames = Array.from(doc.querySelectorAll(':root > IED')).map(
-//     ied => ied.getAttribute('name')!
-//   );
-//   const importedIedName = ied.getAttribute('name')!;
-
-//   if (existingIedNames.includes(importedIedName)) return false;
-
-//   return true;
-// }
-
-// function resetSelection(dialog: Dialog): void {
-//   (
-//     (dialog.querySelector('filtered-list') as List).selected as ListItemBase[]
-//   ).forEach(item => (item.selected = false));
-// }
-
 function validateOrReplaceInput(tf: OscdTextfield): void {
-  /* eslint no-param-reassign: ["error", { "props": false }] */
-  if (!(parseInt(tf.value, 10) >= 0 && parseInt(tf.value, 10) <= 99))
+  if (!(parseInt(tf.value, 10) >= 0 && parseInt(tf.value, 10) <= 99)) {
+    // eslint-disable-next-line no-param-reassign
     tf.value = '1';
+  }
 }
-
-// function sleep(milliseconds: number) {
-//   const date = Date.now();
-//   let currentDate = null;
-//   do {
-//     currentDate = Date.now();
-//   } while (currentDate - date < milliseconds);
-// }
 
 export default class ImportTemplateIedPlugin extends LitElement {
   @property({ attribute: false })
@@ -452,7 +454,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
 
   @query('mwc-dialog') dialog!: Dialog;
 
-  @query('oscd-filtered-list') filteredList!: OscdFilteredList;
+  @query('ul.icd-list') icdList!: HTMLUListElement;
 
   @property({ attribute: false })
   inputSelected = false;
@@ -461,11 +463,6 @@ export default class ImportTemplateIedPlugin extends LitElement {
   importIedCount: number | null = null;
 
   failFast = false;
-
-  // constructor() {
-  //   super();
-  //   // this.play = this.play.bind(this);
-  // }
 
   async run(): Promise<void> {
     this.importDocs = [];
@@ -493,7 +490,8 @@ export default class ImportTemplateIedPlugin extends LitElement {
       ied.ownerDocument.documentElement
     );
 
-    for (let iedCount = 0; iedCount < importQuantity; iedCount += 1) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for await (const _iedNumber of Array(importQuantity)) {
       const iedCopy = <Element>ied.cloneNode(true);
       const newIedName = uniqueTemplateIedName(this.doc, iedCopy);
       iedCopy.setAttribute('name', newIedName);
@@ -507,12 +505,6 @@ export default class ImportTemplateIedPlugin extends LitElement {
       ).forEach(connectedAp => connectedAp.setAttribute('iedName', newIedName));
       edits = edits.concat(addCommunicationElements(iedCopy, this.doc));
 
-      // edits.push({
-      //   new: {
-      //     parent: this.doc!.querySelector(':root')!,
-      //     element: iedCopy,
-      //   },
-      // });
       edits.push({
         parent: this.doc!.querySelector(':root')!,
         node: iedCopy,
@@ -522,55 +514,24 @@ export default class ImportTemplateIedPlugin extends LitElement {
           this.doc.querySelector(':root'),
       });
 
-      // const complexAction: ComplexAction = {
-      //   actions: actions,
-      //   title: msg(str`'Imported ${newIedName} of type ${ied.getAttribute('type') ?? 'Unknown'}`),
-      // };
-
-      // sleep(1000)
-      // if (this.failFast) return
       this.dispatchEvent(newEditEvent(edits));
-      // this.dispatchEvent(newEditEvent(complexAction));
-      // eslint-disable-next-line no-await-in-loop
+
       await this.docUpdate();
-      // if (this.failFast) return
-      // sleep(1000)
     }
   }
 
-  // private play() {
-  //   console.log(this.doc);
-  // }
-
   private async importTemplateIEDs(): Promise<void> {
-    // window.addEventListener('log', event => {
-    //   console.log(event.detail);
-    //   if (event.detail.kind === 'warning') {
-    //     this.failFast = true
-    //     console.log('please give up')
-    //     this.play()
-    //     console.log(this.doc)
-    //   }
-    // });
-
-    // can't use items
-    // const itemImportCountArray = (<List>(
-    //   this.dialog.querySelector('oscd-filtered-list')
-    // )).items.map(item =>
-    //   parseInt(item.querySelector('mwc-textfield')!.value, 10)
-    // );
-
     const itemImportCountArray = Array.from(
-      (<List>this.dialog.querySelector('oscd-filtered-list')).querySelectorAll(
-        'oscd-textfield'
-      )
-    ).map(item => parseInt((<TextField>item).value, 10));
+      this.dialog.querySelector('ul')!.querySelectorAll('oscd-textfield')
+    ).map(item => parseInt((<OscdTextfield>item).value, 10));
 
-    for (const [importQuantity, importDoc] of this.importDocs!.entries()) {
+    for await (const [
+      importQuantity,
+      importDoc,
+    ] of this.importDocs!.entries()) {
       const templateIed = importDoc.querySelector(selector('IED', 'TEMPLATE'))!;
       const newIedCount = itemImportCountArray[importQuantity];
       if (newIedCount !== 0)
-        // eslint-disable-next-line no-await-in-loop
         await this.importTemplateIED(templateIed, newIedCount);
     }
 
@@ -635,7 +596,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
       this.inputSelected = true;
       this.render();
       await this.updateComplete;
-      this.filteredList.querySelectorAll('oscd-textfield').forEach(textField =>
+      this.icdList.querySelectorAll('oscd-textfield').forEach(textField =>
         textField.addEventListener('input', () => {
           validateOrReplaceInput(<OscdTextfield>textField);
           this.getSumOfIedsToCreate();
@@ -643,24 +604,6 @@ export default class ImportTemplateIedPlugin extends LitElement {
       );
       this.dialog.show();
     });
-
-    // Promise.allSettled(promises)
-    //   .then(async () => {
-    //     this.inputSelected = true;
-    //     // render the dialog after processing imports
-    //     this.render();
-    //     await this.updateComplete;
-    //     // listener to validate textfield input and display total IEDs
-    //     (<TextField[]>(
-    //       (<unknown>this.filteredList.querySelectorAll('oscd-textfield'))
-    //     )).forEach(textField =>
-    //       textField.addEventListener('input', () => {
-    //         validateOrReplaceInput(textField);
-    //         this.getSumOfIedsToCreate();
-    //       })
-    //     );
-    //   })
-    //   .then(() => this.dialog.show());
   }
 
   protected renderInput(): TemplateResult {
@@ -672,44 +615,18 @@ export default class ImportTemplateIedPlugin extends LitElement {
 
   // eslint-disable-next-line class-methods-use-this
   protected renderIcdListItem(doc: Document): TemplateResult {
-    const templateIed = doc?.querySelector(':root > IED[name="TEMPLATE"]');
-    const [
-      manufacturer,
-      type,
-      desc,
-      configVersion,
-      originalSclVersion,
-      originalSclRevision,
-      originalSclRelease,
-    ] = [
-      'manufacturer',
-      'type',
-      'desc',
-      'configVersion',
-      'originalSclVersion',
-      'originalSclRevision',
-      'originalSclRelease',
-    ].map(attr => templateIed?.getAttribute(attr));
+    const { firstLine, secondLine } = getTemplateIedDescription(doc);
 
-    const firstLine = [manufacturer, type]
-      .filter(val => val !== null)
-      .join(' - ');
-
-    const schemaInformation = [
-      originalSclVersion,
-      originalSclRevision,
-      originalSclRelease,
-    ]
-      .filter(val => val !== null)
-      .join('');
-
-    const secondLine = [desc, configVersion, schemaInformation]
-      .filter(val => val !== null)
-      .join(' - ');
-
-    return html`<mwc-list-item twoline value="${firstLine}" graphic="icon">
-      <span class="first-line">${firstLine}</span>
-      <span class="second-line" slot="secondary">${secondLine}</span>
+    return html`<li class="item">
+      <mwc-icon>developer_board</mwc-icon>
+      <div
+        class="list-text"
+        title="${firstLine}
+${secondLine}"
+      >
+        <div class="first-line">${firstLine}</div>
+        <div class="second-line">${secondLine}</div>
+      </div>
       <oscd-textfield
         class="template-count"
         min="0"
@@ -719,32 +636,39 @@ export default class ImportTemplateIedPlugin extends LitElement {
         value="1"
         required
       ></oscd-textfield>
-      <mwc-icon slot="graphic">developer_board</mwc-icon>
-    </mwc-list-item>`;
+    </li>`;
   }
 
   protected getSumOfIedsToCreate(): void {
     if (!this.dialog) return;
     let importIedCount = 0;
-    // can't use items for some reason!
-    const items = this.dialog
-      ?.querySelector('oscd-filtered-list')!
-      .querySelectorAll('mwc-list-item');
+
+    const items = this.icdList.querySelectorAll('li');
+
     items.forEach(item => {
       importIedCount += parseInt(
-        (<TextField>item.querySelector('oscd-textfield')!).value,
+        (<OscdTextfield>item.querySelector('oscd-textfield')!).value,
         10
       );
     });
+
     this.importIedCount = importIedCount;
   }
 
   protected renderIedSelection(): TemplateResult {
     const iedImportCount = this.importIedCount ?? this.importDocs?.length ?? 0;
     return html`<mwc-dialog heading="${msg('Import Template IEDs')}">
-      <oscd-filtered-list multi>
-        ${this.importDocs!.map(doc => this.renderIcdListItem(doc))}
-      </oscd-filtered-list>
+      <ul class="icd-list">
+        ${this.importDocs!.sort((a, b) => {
+          const aSortstring = Array.from(
+            Object.entries(getTemplateIedDescription(a))
+          ).join(' ');
+          const bSortstring = Array.from(
+            Object.entries(getTemplateIedDescription(b))
+          ).join(' ');
+          return aSortstring.localeCompare(bSortstring);
+        }).map(doc => this.renderIcdListItem(doc))}
+      </ul>
       <mwc-button
         class="close-button"
         dialogAction="close"
@@ -761,12 +685,6 @@ export default class ImportTemplateIedPlugin extends LitElement {
     </mwc-dialog>`;
   }
 
-  protected firstUpdated(): void {
-    // TODO: Remove after OpenSCD core updated
-    // https://github.com/openscd/open-scd-core/issues/77
-    this.parentElement?.setAttribute('style', 'opacity: 1');
-  }
-
   render(): TemplateResult {
     return this.inputSelected
       ? html`${this.renderIedSelection()}${this.renderInput()}`
@@ -780,48 +698,43 @@ export default class ImportTemplateIedPlugin extends LitElement {
       opacity: 0;
     }
 
-    /* oscd-filtered-list {
-      width: 700px;
-      display: block;
-      overflow: none;
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 15px;
+      max-width: 100%;
     }
 
+    .second-line {
+      font-weight: 400;
+      color: var(--mdc-theme-secondary, rgba(0, 0, 0, 0.54));
+      font-size: 0.875rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .list-text {
+      width: 100%;
+      overflow: hidden;
+    }
+
+    mwc-icon {
+      --mdc-icon-size: 32px;
+    }
+
+    .list-text,
     oscd-textfield {
-      width: 150px;
-    } */
+      padding-right: 10px;
+    }
+
+    mwc-icon {
+      padding-right: 15px;
+    }
 
     .close-button {
       --mdc-theme-primary: var(--mdc-theme-error);
-    }
-
-    /* .first-line,
-    .second-line {
-      display: inline-flex;
-      overflow: hidden;
-      text-overflow: clip;
-      width: 250px;
-    }
-
-    .template-count {
-      display: inline-flex;
-      padding-left: 5px;
-    }
-
-    mwc-list-item {
-      display: flex;
-    } */
-
-    mwc-list-item.hidden {
-      display: none;
-    }
-
-    @media (max-width: 499px) {
-      .first-line,
-      .second-line {
-        width: 200px;
-        overflow: hidden;
-        text-overflow: clip;
-      }
     }
   `;
 }
