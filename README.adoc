@@ -50,6 +50,8 @@ editor engine for {uri-openscd}[OpenSCD].
 
 * This plugin uses the link:LICENSE[Apache License] and is intended for you to use, study, share and improve.
 
+{uri-openscd-core-plugin-demo}[Try it out online]!
+
 Feel free to log issues to request fixes, improvements or new features.
 
 == How to use?
