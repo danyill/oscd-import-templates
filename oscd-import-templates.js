@@ -10465,12 +10465,16 @@ class ImportTemplateIedPlugin extends s$1 {
         updateNamespaces(this.doc.documentElement, ied.ownerDocument.documentElement);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         for await (const _iedNumber of Array(importQuantity)) {
-            const iedCopy = ied.cloneNode(true);
-            const newIedName = uniqueTemplateIedName(this.doc, iedCopy);
-            iedCopy.setAttribute('name', newIedName);
+            const oldDocument = ied.ownerDocument;
+            const newDocument = document.implementation.createDocument(null, null, null);
+            newDocument.appendChild(newDocument.importNode(oldDocument.documentElement, true));
+            const newIedName = uniqueTemplateIedName(this.doc, ied);
+            const newIed = newDocument.querySelector(":root > IED[name='TEMPLATE']");
+            newIed.setAttribute('name', newIedName);
             // Update communication elements for new name
-            Array.from(iedCopy.ownerDocument.querySelectorAll(':root > Communication > SubNetwork > ConnectedAP[iedName="TEMPLATE"]')).forEach(connectedAp => connectedAp.setAttribute('iedName', newIedName));
-            const edits = insertIed(this.doc.documentElement, iedCopy, {
+            // TODO: What else needs to be updated if anything?
+            Array.from(newDocument.querySelectorAll(':root > Communication > SubNetwork > ConnectedAP[iedName="TEMPLATE"]')).forEach(connectedAp => connectedAp.setAttribute('iedName', newIedName));
+            const edits = insertIed(this.doc.documentElement, newIed, {
                 addCommunicationSection: this.importCommsAddressesUI.checked,
             });
             this.dispatchEvent(newEditEvent(edits));
