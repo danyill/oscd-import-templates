@@ -17,8 +17,8 @@
   [
     {"name": "Open File", "translations": {"de": "Datei öffnen"}, "icon": "folder_open", "active": true, "src": "https://openscd.github.io/oscd-open/oscd-open.js"}, 
     {"name": "Save File", "translations": {"de": "Datei speichern"}, "icon": "save", "active": true, "src": "https://openscd.github.io/oscd-save/oscd-save.js"},
-    {"name": "Import Templates", "translations": {"de": "Importvorlagen", "pt": "Modelos de Importação"}, "icon": "package_2", "active": true, "requireDoc": true, "src": "/dist/oscd-import-templates.js"}
-  ]
+    {"name": "Import Templates", "translations": {"de": "Importvorlagen", "pt": "Modelos de Importação"}, "icon": "package_2", "active": true, "requireDoc": true, "src": "oscd-import-templates.js"}
+  ],
 }'
 ></open-scd>
 
@@ -36,7 +36,9 @@
 </script>
 
 <script type="module">
-  import '@openscd/open-scd-core/open-scd.js';
+  import 'https://openscd.github.io/open-scd-core/open-scd.js';
+  //   import 'open-scd-core/open-scd.js'
+  //   Could also use: jsdelivr or unpkg
 
   const editor = document.querySelector('open-scd');
   const params = new URL(document.location).searchParams;

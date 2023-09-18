@@ -1,7 +1,7 @@
 import { css, html, LitElement, TemplateResult } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
 
-import { msg } from '@lit/localize';
+import { msg, str } from '@lit/localize';
 
 import { insertIed } from '@openenergytools/scl-lib';
 import { newEditEvent } from '@openscd/open-scd-core';
@@ -209,19 +209,19 @@ export default class ImportTemplateIedPlugin extends LitElement {
 
   public isImportValid(templateDoc: Document, filename: string): boolean {
     if (!templateDoc) {
-      this.errorString.push(msg(`Could not load file in ${filename}`));
+      this.errorString.push(msg(str`Could not load file in ${filename}`));
       return false;
     }
 
     if (templateDoc.querySelector('parsererror')) {
-      this.errorString.push(msg(`Parser error in ${filename}`));
+      this.errorString.push(msg(str`Parser error in ${filename}`));
       return false;
     }
 
     const ied = templateDoc.querySelector(':root > IED[name="TEMPLATE"]');
     if (!ied) {
       this.errorString.push(
-        msg(`No Template IED element in the file ${filename}`)
+        msg(str`No Template IED element in the file ${filename}`)
       );
       return false;
     }

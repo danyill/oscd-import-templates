@@ -19,8 +19,10 @@
 /_site/
 /dist/
 .tsbuildinfo
-.rollup.cache
+.rollup.cache/
 /out-tsc/
+/locales/
 
 storybook-static
 custom-elements.json
+locales.ts
