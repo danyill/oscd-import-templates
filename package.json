@@ -21,7 +21,6 @@
     "test:watch": "tsc && concurrently -k -r \"tsc --watch --preserveWatchOutput\" \"wtr --watch\""
   },
   "dependencies": {
-    "lit": "^2.4.0",
     "@lit/localize": "^0.11.4",
     "@material/dialog": "^14.0.0",
     "@material/mwc-button": "^0.27.0",
@@ -35,14 +34,15 @@
     "@material/mwc-select": "^0.27.0",
     "@material/mwc-switch": "^0.27.0",
     "@material/mwc-textfield": "^0.27.0",
-    "@openscd/open-scd-core": "^0.0.2"
+    "@openenergytools/scl-lib": "^0.5.9",
+    "@openscd/open-scd-core": "^0.0.2",
+    "lit": "^2.4.0"
   },
   "devDependencies": {
     "@custom-elements-manifest/analyzer": "^0.6.6",
     "@open-wc/building-rollup": "^2.0.2",
     "@open-wc/eslint-config": "^8.0.2",
     "@open-wc/testing": "^3.1.6",
-
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@rollup/plugin-typescript": "^9.0.2",
     "@typescript-eslint/eslint-plugin": "^5.41.0",
