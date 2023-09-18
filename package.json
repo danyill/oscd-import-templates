@@ -1,6 +1,6 @@
 {
   "name": "oscd-import-templates",
-  "description": "Webcomponent for import ICD template IEC 61850 SCL files",
+  "description": "Allow importing IEC 61850 ICD templates into an OpenSCD project",
   "license": "Apache-2.0",
   "author": "Daniel Mulholland",
   "version": "0.0.0",
