@@ -1128,36 +1128,46 @@ function getReference(parent, tag) {
 }
 
 function addCommunicationElements(newIed, scl) {
-    const actions = [];
+    const edits = [];
     const existingCommunication = scl.querySelector(":root > Communication");
     const communication = existingCommunication
         ? existingCommunication
         : createElement(scl.ownerDocument, "Communication", {});
     if (!existingCommunication)
-        actions.push({
+        edits.push({
             parent: scl,
             node: communication,
             reference: getReference(scl, "Communication"),
         });
-    const connectedAP = newIed.ownerDocument.querySelector(`:root > Communication > SubNetwork > ConnectedAP[iedName="${newIed.getAttribute("name")}"]`);
-    if (!connectedAP)
-        return actions;
-    const newSubNetwork = connectedAP.parentElement;
-    const oldSubNetworkMatch = communication.querySelector(`:root > Communication > SubNetwork[name="${newSubNetwork.getAttribute("name")}"]`);
-    const subNetwork = oldSubNetworkMatch ? oldSubNetworkMatch : newSubNetwork;
-    const newConnectedAP = connectedAP.cloneNode(true);
-    if (!oldSubNetworkMatch)
-        actions.push({
-            parent: communication,
-            node: subNetwork,
-            reference: getReference(communication, "SubNetwork"),
-        });
-    actions.push({
-        parent: subNetwork,
-        node: newConnectedAP,
-        reference: getReference(subNetwork, "ConnectedAP"),
+    const newSubNetworks = Array.from(newIed.ownerDocument.querySelectorAll(`:root > Communication > SubNetwork`));
+    newSubNetworks.forEach((newSubNetwork) => {
+        const subNetworkName = newSubNetwork.getAttribute("name");
+        // check if subnetwork already exists
+        const existingSubNetwork = communication.querySelector(`:root > Communication > SubNetwork[name="${subNetworkName}"]`);
+        if (!existingSubNetwork) {
+            // subnetwork is new and can be copied as is
+            const subNetwork = newSubNetwork.cloneNode(true);
+            edits.push({
+                parent: communication,
+                node: subNetwork,
+                reference: getReference(communication, "SubNetwork"),
+            });
+        }
+        else {
+            // subnetwork exists and individual ConnectedAP are copied
+            const newConnectedAPs = newIed.ownerDocument.querySelectorAll(`:root > Communication > SubNetwork[name="${subNetworkName}"] 
+        > ConnectedAP[iedName="${newIed.getAttribute("name")}"]`);
+            newConnectedAPs.forEach((newConnectedAP) => {
+                const connectedAP = newConnectedAP.cloneNode(true);
+                edits.push({
+                    parent: existingSubNetwork,
+                    node: connectedAP,
+                    reference: getReference(existingSubNetwork, "ConnectedAP"),
+                });
+            });
+        }
     });
-    return actions;
+    return edits;
 }
 function isDataTypeConnectionToIed(dataType, newIed) {
     const dataTypeTemplates = dataType.parentElement;
@@ -1194,7 +1204,7 @@ function addEnumType(newIed, newEnumType, oldDataTypeTemplates) {
     return {
         parent: oldDataTypeTemplates,
         node: newEnumType,
-        reference: getReference(oldDataTypeTemplates, "LNodeType"),
+        reference: getReference(oldDataTypeTemplates, "EnumType"),
     };
 }
 function addDAType(newIed, newDAType, oldDataTypeTemplates) {
@@ -1256,7 +1266,7 @@ function addLNodeType(newIed, newLNodeType, oldDataTypeTemplates) {
         const idNew = newIed.getAttribute("name").concat(idOld);
         newLNodeType.setAttribute("id", idNew);
         Array.from(newIed.querySelectorAll(`LN0[lnType="${idOld}"],LN[lnType="${idOld}"]`))
-            .filter((anyLn) => anyLn.closest("Private"))
+            .filter((anyLn) => !anyLn.closest("Private"))
             .forEach((ln) => ln.setAttribute("lnType", idNew));
     }
     return {
@@ -1266,30 +1276,31 @@ function addLNodeType(newIed, newLNodeType, oldDataTypeTemplates) {
     };
 }
 function addDataTypeTemplates(newIed, scl) {
-    const actions = [];
+    const dataTypeEdit = [];
     const dataTypeTemplates = scl.querySelector(":root > DataTypeTemplates")
         ? scl.querySelector(":root > DataTypeTemplates")
         : createElement(scl.ownerDocument, "DataTypeTemplates", {});
     if (!dataTypeTemplates.parentElement) {
-        actions.push({
+        dataTypeEdit.push({
             parent: scl,
             node: dataTypeTemplates,
             reference: getReference(scl, "DataTypeTemplates"),
         });
     }
-    newIed.ownerDocument
-        .querySelectorAll(":root > DataTypeTemplates > LNodeType")
-        .forEach((lNodeType) => actions.push(addLNodeType(newIed, lNodeType, dataTypeTemplates)));
-    newIed.ownerDocument
-        .querySelectorAll(":root > DataTypeTemplates > DOType")
-        .forEach((doType) => actions.push(addDOType(newIed, doType, dataTypeTemplates)));
-    newIed.ownerDocument
-        .querySelectorAll(":root > DataTypeTemplates > DAType")
-        .forEach((daType) => actions.push(addDAType(newIed, daType, dataTypeTemplates)));
+    const typeEdits = [];
     newIed.ownerDocument
         .querySelectorAll(":root > DataTypeTemplates > EnumType")
-        .forEach((enumType) => actions.push(addEnumType(newIed, enumType, dataTypeTemplates)));
-    return actions.filter((item) => item !== undefined);
+        .forEach((enumType) => typeEdits.push(addEnumType(newIed, enumType, dataTypeTemplates)));
+    newIed.ownerDocument
+        .querySelectorAll(":root > DataTypeTemplates > DAType")
+        .forEach((daType) => typeEdits.push(addDAType(newIed, daType, dataTypeTemplates)));
+    newIed.ownerDocument
+        .querySelectorAll(":root > DataTypeTemplates > DOType")
+        .forEach((doType) => typeEdits.push(addDOType(newIed, doType, dataTypeTemplates)));
+    newIed.ownerDocument
+        .querySelectorAll(":root > DataTypeTemplates > LNodeType")
+        .forEach((lNodeType) => typeEdits.push(addLNodeType(newIed, lNodeType, dataTypeTemplates)));
+    return dataTypeEdit.concat(typeEdits.reverse().filter((item) => item !== undefined));
 }
 function isNameUnique(scl, ied) {
     return !!scl.querySelector(`IED[name="${ied.getAttribute("name")}"]`);
@@ -1306,21 +1317,22 @@ function isSCL(node) {
  * @param scl - the parent SCL element to insert the IED to
  * @param ied - the new IED to be added to the project (SCL)
  * @param options
- * @returns An array containing diff objects representing an import IED action
+ * @returns An array containing diff objects representing an import IED edit
  * section */
 function insertIed(scl, ied, options = { addCommunicationSection: true }) {
-    const inserts = [];
     if (!isSCL(scl) || !isIED(ied) || isNameUnique(scl, ied))
         return [];
-    inserts.push(...addDataTypeTemplates(ied, scl));
+    const insertCommunication = [];
     if (options.addCommunicationSection)
-        inserts.push(...addCommunicationElements(ied, scl));
+        insertCommunication.push(...addCommunicationElements(ied, scl));
+    const insertDataTypes = [];
+    insertDataTypes.push(...addDataTypeTemplates(ied, scl));
     const insertIed = {
         parent: scl,
         node: ied,
         reference: getReference(scl, "IED"),
     };
-    return [insertIed].concat(inserts);
+    return [...insertCommunication, insertIed, ...insertDataTypes];
 }
 
 const maxGseMacAddress = 0x010ccd0101ff;
@@ -10466,7 +10478,7 @@ class ImportTemplateIedPlugin extends s$1 {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         for await (const _iedNumber of Array(importQuantity)) {
             const oldDocument = ied.ownerDocument;
-            const newDocument = document.implementation.createDocument(null, null, null);
+            const newDocument = document.implementation.createDocument('http://www.iec.ch/61850/2003/SCL', null, null);
             newDocument.appendChild(newDocument.importNode(oldDocument.documentElement, true));
             const newIedName = uniqueTemplateIedName(this.doc, ied);
             const newIed = newDocument.querySelector(":root > IED[name='TEMPLATE']");
