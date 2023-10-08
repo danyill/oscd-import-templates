@@ -171,7 +171,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
       const oldDocument = ied.ownerDocument;
 
       const newDocument = document.implementation.createDocument(
-        null,
+        'http://www.iec.ch/61850/2003/SCL',
         null,
         null
       );
