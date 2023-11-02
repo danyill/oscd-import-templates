@@ -10586,7 +10586,7 @@ ${secondLine}"
         const iedImportCount = (_c = (_a = this.importIedCount) !== null && _a !== void 0 ? _a : (_b = this.importDocs) === null || _b === void 0 ? void 0 : _b.length) !== null && _c !== void 0 ? _c : 0;
         return x `<mwc-dialog heading="${msg('Import Template IEDs')}">
       <mwc-formfield label="${msg('Include Communications Addresses')}">
-        <mwc-checkbox id="comms-addresses"></mwc-checkbox>
+        <mwc-checkbox id="comms-addresses" checked></mwc-checkbox>
       </mwc-formfield>
       <ul id="icd-list">
         ${this.importDocs.sort((a, b) => {
