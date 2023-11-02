@@ -325,7 +325,7 @@ ${secondLine}"
     const iedImportCount = this.importIedCount ?? this.importDocs?.length ?? 0;
     return html`<mwc-dialog heading="${msg('Import Template IEDs')}">
       <mwc-formfield label="${msg('Include Communications Addresses')}">
-        <mwc-checkbox id="comms-addresses"></mwc-checkbox>
+        <mwc-checkbox id="comms-addresses" checked></mwc-checkbox>
       </mwc-formfield>
       <ul id="icd-list">
         ${this.importDocs!.sort((a, b) => {
