@@ -1,21 +1,18 @@
 import { css, html, LitElement, TemplateResult } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
 
-import { insertIed } from '@openenergytools/scl-lib';
+import { insertIed, isPublic } from '@openenergytools/scl-lib';
 import { newEditEvent } from '@openscd/open-scd-core';
 import type { Dialog } from '@material/mwc-dialog';
 import type { Checkbox } from '@material/mwc-checkbox';
-
-import type { OscdTextfield } from './foundation/components/oscd-textfield.js';
 
 import '@material/dialog';
 import '@material/mwc-button';
 import '@material/mwc-checkbox';
 import '@material/mwc-formfield';
+import '@material/mwc-textfield';
 
-import './foundation/components/oscd-textfield.js';
-
-import { isPublic } from './foundation.js';
+import type { TextField } from '@material/mwc-textfield';
 
 function uniqueTemplateIedName(doc: XMLDocument, ied: Element): string {
   const [manufacturer, type] = ['manufacturer', 'type'].map(
@@ -103,7 +100,7 @@ function updateNamespaces(destElement: Element, sourceElement: Element) {
     });
 }
 
-function validateOrReplaceInput(tf: OscdTextfield): void {
+function validateOrReplaceInput(tf: TextField): void {
   if (!(parseInt(tf.value, 10) >= 0 && parseInt(tf.value, 10) <= 99)) {
     // eslint-disable-next-line no-param-reassign
     tf.value = '1';
@@ -202,8 +199,8 @@ export default class ImportTemplateIedPlugin extends LitElement {
 
   private async importTemplateIEDs(): Promise<void> {
     const itemImportCountArray = Array.from(
-      this.dialog.querySelector('ul')!.querySelectorAll('oscd-textfield')
-    ).map(item => parseInt((<OscdTextfield>item).value, 10));
+      this.dialog.querySelector('ul')!.querySelectorAll('mwc-textfield')
+    ).map(item => parseInt(item.value, 10));
 
     for await (const [
       importQuantity,
@@ -257,9 +254,9 @@ export default class ImportTemplateIedPlugin extends LitElement {
       this.inputSelected = true;
       this.render();
       await this.updateComplete;
-      this.icdList.querySelectorAll('oscd-textfield').forEach(textField =>
+      this.icdList.querySelectorAll('mwc-textfield').forEach(textField =>
         textField.addEventListener('input', () => {
-          validateOrReplaceInput(<OscdTextfield>textField);
+          validateOrReplaceInput(textField);
           this.getSumOfIedsToCreate();
         })
       );
@@ -289,7 +286,7 @@ ${secondLine}"
         <div class="first-line">${firstLine}</div>
         <div class="second-line">${secondLine}</div>
       </div>
-      <oscd-textfield
+      <mwc-textfield
         class="template-count"
         min="0"
         max="99"
@@ -297,7 +294,7 @@ ${secondLine}"
         type="number"
         value="1"
         required
-      ></oscd-textfield>
+      ></mwc-textfield>
     </li>`;
   }
 
@@ -309,7 +306,7 @@ ${secondLine}"
 
     items.forEach(item => {
       importIedCount += parseInt(
-        (<OscdTextfield>item.querySelector('oscd-textfield')!).value,
+        item.querySelector('mwc-textfield')!.value,
         10
       );
     });
@@ -390,7 +387,7 @@ ${secondLine}"
     }
 
     .list-text,
-    oscd-textfield {
+    mwc-textfield {
       padding-right: 10px;
     }
 

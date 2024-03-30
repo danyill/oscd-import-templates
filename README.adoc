@@ -40,7 +40,7 @@ toc::[]
 == What is this?
 
 This plugin is intended to allow a user to import any number of IEDs from a free selection of template files.
-Within each template file there must be an IED with the name `TEMPLATE`.
+Within each template file there must be only one IED with the name `TEMPLATE`.
 It can optionally import Communication section elements for the IEDs.
 
 * This is a plugin for {uri-openscd-core}[open-scd-core], the core

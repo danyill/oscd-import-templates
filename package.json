@@ -18,15 +18,13 @@
     "test:update": "npm run build && wtr --update-visual-baseline",
     "analyze": "cem analyze --litelement",
     "deploy": "npm run bundle && gh-pages --dist 'dist'",
-    "build": "npm run extract && npm run localize && npm run compile",
+    "build": "npm run compile",
     "compile": "tsc -b",
     "bundle": "rimraf dist && rollup -c rollup.config.js",
     "doc": "npm run analyze -- --exclude dist && typedoc --out dist/doc foundation.ts",
     "prepublish": "npm run lint && npm run build && npm run doc",
     "lint": "eslint --ext .ts,.html . --ignore-path .gitignore && prettier --ignore-path .gitignore --check . --",
     "format": "eslint --ext .ts,.html . --fix --ignore-path .gitignore && prettier --ignore-path .gitignore --write .",
-    "extract": "lit-localize extract",
-    "localize": "lit-localize build",
     "prepare": "husky install"
   },
   "dependencies": {
