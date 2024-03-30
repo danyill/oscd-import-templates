@@ -30,7 +30,6 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@lit/localize": "^0.11.4",
     "@material/dialog": "^14.0.0",
     "@material/mwc-button": "^0.27.0",
     "@material/mwc-checkbox": "^0.27.0",
@@ -43,37 +42,35 @@
     "@material/mwc-select": "^0.27.0",
     "@material/mwc-switch": "^0.27.0",
     "@material/mwc-textfield": "^0.27.0",
-    "@openenergytools/scl-lib": "^0.5.12",
+    "@openenergytools/scl-lib": "^0.7.14",
     "@openscd/open-scd-core": "^0.0.2",
-    "lit": "^2.4.0"
+    "lit": "^3.0.1"
   },
   "devDependencies": {
-    "@custom-elements-manifest/analyzer": "^0.6.6",
-    "@lit/localize-tools": "^0.6.8",
-    "@open-wc/building-rollup": "^2.0.2",
-    "@open-wc/eslint-config": "^8.0.2",
+    "@custom-elements-manifest/analyzer": "^0.9.0",
+    "@open-wc/eslint-config": "^12.0.1",
     "@open-wc/testing": "^3.1.6",
-    "@rollup/plugin-node-resolve": "^15.0.1",
-    "@rollup/plugin-typescript": "^9.0.2",
-    "@typescript-eslint/eslint-plugin": "^5.41.0",
-    "@typescript-eslint/parser": "^5.41.0",
-    "@web/dev-server": "^0.1.35",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "@typescript-eslint/eslint-plugin": "^6.9.0",
+    "@typescript-eslint/parser": "^6.9.0",
+    "@web/dev-server": "^0.3.6",
     "@web/rollup-plugin-import-meta-assets": "^2.1.0",
-    "@web/test-runner": "^0.15.0",
-    "concurrently": "^7.5.0",
-    "deepmerge": "^4.2.2",
-    "eslint": "^8.26.0",
-    "eslint-config-prettier": "^8.5.0",
-    "gh-pages": "^4.0.0",
-    "husky": "^8.0.0",
-    "lint-staged": "^13.0.3",
-    "prettier": "^2.7.1",
-    "rimraf": "^3.0.2",
-    "rollup": "^2.79.1",
-    "rollup-plugin-copy": "^3.4.0",
-    "tslib": "^2.4.1",
-    "typedoc": "^0.23.8",
-    "typescript": "^4.8.4"
+    "@web/test-runner": "^0.17.2",
+    "concurrently": "^8.2.2",
+    "es-dev-server": "^2.1.0",
+    "eslint": "^8.52.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-tsdoc": "^0.2.17",
+    "gh-pages": "^6.0.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.0.2",
+    "prettier": "^3.0.3",
+    "rimraf": "^5.0.5",
+    "rollup-plugin-copy": "^3.5.0",
+    "tslib": "^2.6.2",
+    "typedoc": "^0.25.2",
+    "typescript": "^5.1.0"
   },
   "customElements": "custom-elements.json",
   "eslintConfig": {
@@ -97,17 +94,14 @@
         {
           "ignorePackages": true
         }
-      ]
+      ],
+      "lit/no-classfield-shadowing": "off"
     }
   },
   "prettier": {
+    "arrowParens": "avoid",
     "singleQuote": true,
-    "arrowParens": "avoid"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
+    "trailingComma": "none"
   },
   "lint-staged": {
     "*.ts": [

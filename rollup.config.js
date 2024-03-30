@@ -8,7 +8,7 @@ export default {
   output: {
     sourcemap: true, // Add source map to build output
     format: 'es', // ES module type export
-    dir: 'dist', // The build output folder
+    dir: 'dist' // The build output folder
     // preserveModules: true,  // Keep directory structure and files
   },
   preserveEntrySignatures: 'strict', // leaves export of the plugin entry point
@@ -18,8 +18,8 @@ export default {
     nodeResolve(),
     typescript(),
     copy({
-      targets: [{ src: 'demo/index.deploy.html', dest: 'dist' }],
+      targets: [{ src: 'demo/index.deploy.html', dest: 'dist' }]
     }),
-    importMetaAssets(),
-  ],
+    importMetaAssets()
+  ]
 };

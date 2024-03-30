@@ -1,8 +1,6 @@
 import { css, html, LitElement, TemplateResult } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
 
-import { msg, str } from '@lit/localize';
-
 import { insertIed } from '@openenergytools/scl-lib';
 import { newEditEvent } from '@openscd/open-scd-core';
 import type { Dialog } from '@material/mwc-dialog';
@@ -20,8 +18,8 @@ import './foundation/components/oscd-textfield.js';
 import { isPublic } from './foundation.js';
 
 function uniqueTemplateIedName(doc: XMLDocument, ied: Element): string {
-  const [manufacturer, type] = ['manufacturer', 'type'].map(attr =>
-    ied.getAttribute(attr)?.replace(/[^A-Za-z0-9_]/, '')
+  const [manufacturer, type] = ['manufacturer', 'type'].map(
+    attr => ied.getAttribute(attr)?.replace(/[^A-Za-z0-9_]/, '')
   );
   const nameCore =
     manufacturer || type
@@ -56,7 +54,7 @@ function getTemplateIedDescription(doc: Document): {
     configVersion,
     originalSclVersion,
     originalSclRevision,
-    originalSclRelease,
+    originalSclRelease
   ] = [
     'manufacturer',
     'type',
@@ -64,7 +62,7 @@ function getTemplateIedDescription(doc: Document): {
     'configVersion',
     'originalSclVersion',
     'originalSclRevision',
-    'originalSclRelease',
+    'originalSclRelease'
   ].map(attr => templateIed?.getAttribute(attr));
 
   const firstLine = [manufacturer, type]
@@ -74,7 +72,7 @@ function getTemplateIedDescription(doc: Document): {
   const schemaInformation = [
     originalSclVersion,
     originalSclRevision,
-    originalSclRelease,
+    originalSclRelease
   ]
     .filter(val => val !== null)
     .join('');
@@ -193,7 +191,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
       ).forEach(connectedAp => connectedAp.setAttribute('iedName', newIedName));
 
       const edits = insertIed(this.doc.documentElement, newIed, {
-        addCommunicationSection: this.importCommsAddressesUI.checked,
+        addCommunicationSection: this.importCommsAddressesUI.checked
       });
 
       this.dispatchEvent(newEditEvent(edits));
@@ -209,7 +207,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
 
     for await (const [
       importQuantity,
-      importDoc,
+      importDoc
     ] of this.importDocs!.entries()) {
       const templateIed = importDoc.querySelector('IED[name="TEMPLATE"]')!;
       const newIedCount = itemImportCountArray[importQuantity];
@@ -222,20 +220,18 @@ export default class ImportTemplateIedPlugin extends LitElement {
 
   public isImportValid(templateDoc: Document, filename: string): boolean {
     if (!templateDoc) {
-      this.errorString.push(msg(str`Could not load file in ${filename}`));
+      this.errorString.push(`Could not load file in ${filename}`);
       return false;
     }
 
     if (templateDoc.querySelector('parsererror')) {
-      this.errorString.push(msg(str`Parser error in ${filename}`));
+      this.errorString.push(`Parser error in ${filename}`);
       return false;
     }
 
     const ied = templateDoc.querySelector(':root > IED[name="TEMPLATE"]');
     if (!ied) {
-      this.errorString.push(
-        msg(str`No Template IED element in the file ${filename}`)
-      );
+      this.errorString.push(`No Template IED element in the file ${filename}`);
       return false;
     }
     return true;
@@ -323,8 +319,8 @@ ${secondLine}"
 
   protected renderIedSelection(): TemplateResult {
     const iedImportCount = this.importIedCount ?? this.importDocs?.length ?? 0;
-    return html`<mwc-dialog heading="${msg('Import Template IEDs')}">
-      <mwc-formfield label="${msg('Include Communications Addresses')}">
+    return html`<mwc-dialog heading="Import Template IEDs">
+      <mwc-formfield label="Include Communications Addresses">
         <mwc-checkbox id="comms-addresses"></mwc-checkbox>
       </mwc-formfield>
       <ul id="icd-list">
@@ -341,7 +337,7 @@ ${secondLine}"
       <mwc-button
         class="close-button"
         dialogAction="close"
-        label="${msg('close')}"
+        label="Close"
         slot="secondaryAction"
       ></mwc-button>
       <mwc-button

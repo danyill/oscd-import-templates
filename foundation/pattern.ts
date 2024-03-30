@@ -9,7 +9,7 @@ const typeBase = {
   VLANid: '[0-9A-F]{3}',
   port: '0|([1-9][0-9]{0,3})|([1-5][0-9]{4,4})|(6[0-4][0-9]{3,3})|(65[0-4][0-9]{2,2})|(655[0-2][0-9])|(6553[0-5])',
   IPv6: '([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}',
-  IPv6sub: '/[1-9]|/[1-9][0-9]|/1[0-1][0-9]|/12[0-7]',
+  IPv6sub: '/[1-9]|/[1-9][0-9]|/1[0-1][0-9]|/12[0-7]'
 };
 
 /** Patterns from IEC 61850-6 for all `P` elements */
@@ -43,7 +43,7 @@ export const typePattern: Partial<Record<string, string>> = {
   IPv6ClassOfTraffic: '[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]',
   'IPv6-IGMPv3Src': typeBase.IPv6,
   'IP-IGMPv3Sr': typeBase.IP,
-  'IP-ClassOfTraffic': typeBase.OSI,
+  'IP-ClassOfTraffic': typeBase.OSI
 };
 
 /** Whether `P` element is required within `Address` */
@@ -76,7 +76,7 @@ export const typeNullable: Partial<Record<string, boolean>> = {
   IPv6ClassOfTraffic: true,
   'IPv6-IGMPv3Src': true,
   'IP-IGMPv3Sr': true,
-  'IP-ClassOfTraffic': true,
+  'IP-ClassOfTraffic': true
 };
 
 const nameStartChar =
@@ -109,10 +109,10 @@ export const patterns = {
     '(SPS)|(DPS)|(INS)|(ENS)|(ACT)|(ACD)|(SEC)|(BCR)|(HST)|(VSS)|(MV)|(CMV)|(SAV)|' +
     '(WYE)|(DEL)|(SEQ)|(HMV)|(HWYE)|(HDEL)|(SPC)|(DPC)|(INC)|(ENC)|(BSC)|(ISC)|(APC)|(BAC)|' +
     '(SPG)|(ING)|(ENG)|(ORG)|(TSG)|(CUG)|(VSG)|(ASG)|(CURVE)|(CSG)|(DPL)|(LPL)|(CSD)|(CST)|' +
-    '(BTS)|(UTS)|(LTS)|(GTS)|(MTS)|(NTS)|(STS)|(CTS)|(OTS)|(VSD)',
+    '(BTS)|(UTS)|(LTS)|(GTS)|(MTS)|(NTS)|(STS)|(CTS)|(OTS)|(VSD)'
 };
 
 export const maxLength = {
   cbName: 32,
-  abstracDaName: 60,
+  abstracDaName: 60
 };

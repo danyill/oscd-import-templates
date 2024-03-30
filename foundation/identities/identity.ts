@@ -28,7 +28,7 @@ export function lNodeIdentity(e: Element): string {
     'prefix',
     'lnClass',
     'lnInst',
-    'lnType',
+    'lnType'
   ].map(name => e.getAttribute(name));
   if (iedName === 'None')
     return `${identity(e.parentElement)}>(${lnClass} ${lnType})`;
@@ -60,7 +60,7 @@ export function iEDNameIdentity(e: Element): string {
     'ldInst',
     'prefix',
     'lnClass',
-    'lnInst',
+    'lnInst'
   ].map(name => e.getAttribute(name));
   return `${identity(e.parentElement)}>${iedName} ${apRef || ''} ${
     ldInst || ''
@@ -76,7 +76,7 @@ export function fCDAIdentity(e: Element): string {
     'doName',
     'daName',
     'fc',
-    'ix',
+    'ix'
   ].map(name => e.getAttribute(name));
   const dataPath = `${ldInst}/${prefix ?? ''} ${lnClass} ${
     lnInst ?? ''
@@ -107,7 +107,7 @@ export function extRefIdentity(e: Element): string | number {
     srcPrefix,
     srcLNClass,
     srcLNInst,
-    srcCBName,
+    srcCBName
   ] = [
     'ldInst',
     'prefix',
@@ -120,7 +120,7 @@ export function extRefIdentity(e: Element): string | number {
     'srcPrefix',
     'srcLNClass',
     'srcLNInst',
-    'srcCBName',
+    'srcCBName'
   ].map(name => e.getAttribute(name));
 
   const cbPath = srcCBName
@@ -151,7 +151,7 @@ export function clientLNIdentity(e: Element): string {
     'ldInst',
     'prefix',
     'lnClass',
-    'lnInst',
+    'lnInst'
   ].map(name => e.getAttribute(name));
   return `${identity(e.parentElement)}>${iedName} ${apRef || ''} ${ldInst}/${
     prefix ?? ''

@@ -1,4 +1,5 @@
-= OpenSCD Plugin: Import Template IEDs
+= OpenSCD Plugin: Import Templates
+:plugin-name: Import Templates
 :sectnums:
 :sectlinks:
 :toc: macro
@@ -76,7 +77,7 @@ In this view it is without theming and only presents this plugin along with the 
 
 . Select OK to required a loaded document.
 
-. Choose a plugin name of 'Subscriber Later Binding'.
+. Choose a plugin name of '{plugin-name}'.
 
 . Choose a plugin icon of 'link'
 
@@ -100,7 +101,7 @@ NOTE: OpenSCD is transitioning to use of `open-scd-core`, these instructions wil
 
 . Create a custom extension by going to menu:menu[Extensions>Add Custom Extension].
 
-. Enter the name 'Subscriber Later Binding', select 'Editor tab' and enter {uri-ci-bundle} as the URL.
+. Enter the name '{plugin-name}', select 'Editor tab' and enter {uri-ci-bundle} as the URL.
 +
 This is the URL of the bundle built by CI and is always the latest alpha version of this plugin.
 +
@@ -117,7 +118,7 @@ image::screenshot-add-extension.png[width=300]
 +
 This is the URL of the bundle built by CI and is always the latest alpha version of this plugin.
 
-. You should now be able to scroll across in the menu-bar and find a tab, "Subscriber Later Binding"
+. You should now be able to scroll across in the menu-bar and find a tab, "{plugin-name}"
 +
 TIP: If there are too many editor plugin, hold down shift and wheel-mouse up and down to scroll them easily.
 
@@ -131,7 +132,7 @@ Each plugin appears in the following form:
 [source,js,subs=+attributes]
 ----
 {
-    name: 'Subscriber Later Binding', // <.>
+    name: '{plugin-name}', // <.>
     src: '{uri-ci-bundle}', //  <.>
     icon: 'link', // <.>
     default: true, // <.>
@@ -161,18 +162,18 @@ Within an OpenSCD core distribution, plugins are also loaded from a json file wi
 
 . Typically the distribution will be served from a static web page and within the web page there will be a plugins property declared on an `open-scd` object, for instance:
 +
-[source,js]
+[source,js,subs=+attributes]
 ----
 <open-scd
   plugins='{
   "menu": 
   [
-    {"name": "Open File", "translations": {"de": "Datei öffnen"}, "icon": "folder_open", "active": true, "src": "https://openscd.github.io/oscd-open/oscd-open.js"}, 
+    {"name": "Open File", "icon": "folder_open", "active": true, "src": "https://openscd.github.io/oscd-open/oscd-open.js"}, 
     {"name": "Save File", "translations": {"de": "Datei speichern"}, "icon": "save", "active": true, "src": "https://openscd.github.io/oscd-save/oscd-save.js"}
   ],
   "editor": 
   [
-    {"name": "Subscriber Later Binding", "translations": {"de": "Späte Bindung des Abonnenten", "pt": "Associação Tardia de Assinante"}, "icon": "link", "active": true, "requireDoc": true, "src": "/plugins/oscd-import-templates/dist/oscd-import-templates.js"}
+    {"name": "{plugin-name}", "icon": "link", "active": true, "requireDoc": true, "src": "/plugins/oscd-import-templates/dist/oscd-import-templates.js"}
   ]
 }'
 ></open-scd>
@@ -183,11 +184,7 @@ Within an OpenSCD core distribution, plugins are also loaded from a json file wi
 [source,js,subs=+attributes]
 ----
 {
-  "name": "Subscriber Later Binding", // <.>
-  "translations": { // <.>
-    "de": "Späte Bindung des Abonnenten",
-    "pt": "Associação Tardia de Assinante"
-  },
+  "name": "{plugin-name}", // <.>
   "icon": "link", // <.>
   "active": true, // <.>
   "requireDoc": true, // <.>
@@ -195,7 +192,6 @@ Within an OpenSCD core distribution, plugins are also loaded from a json file wi
 }
 ----
 <.> Name of the plugin which appears in the editor menu at top of screen
-<.> Translations of the plugin name as required using standard locale names.
 <.> A material icon, see others at {uri-material-icons}[Material Symbols and Icons]
 <.> Whether the plugin is enabled by default or has to be enabled in the plugins menu
 <.> Whether a document must be loaded for this plugin to be available
@@ -231,9 +227,7 @@ Now that you have Node.js installed, you can install this plugin.
 
 === Cloning and Demo Server
 
-TIP: This repository uses Git LFS so ensure this is is installed on your system prior 
-(on Debian based systems `sudo apt install git-lfs`). 
-Then clone this repository using:
+Clone this repository using:
 
 [subs=+attributes]
  $ git clone {uri-plugin}

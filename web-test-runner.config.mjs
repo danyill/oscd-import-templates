@@ -8,7 +8,7 @@ export default /** @type {import("@web/test-runner").TestRunnerConfig} */ ({
 
   /** Resolve bare module imports */
   nodeResolve: {
-    exportConditions: ['browser', 'development'],
+    exportConditions: ['browser', 'development']
   },
 
   /** Filter out lit dev mode logs */
@@ -19,7 +19,7 @@ export default /** @type {import("@web/test-runner").TestRunnerConfig} */ ({
       }
     }
     return true;
-  },
+  }
 
   /** Compile JS for older browsers. Requires @web/dev-server-esbuild plugin */
   // esbuildTarget: 'auto',

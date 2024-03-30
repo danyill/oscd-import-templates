@@ -22,7 +22,7 @@ import {
   sCLIdentity,
   singletonIdentity,
   terminalIdentity,
-  valIdentity,
+  valIdentity
 } from './identity.js';
 import {
   associationSelector,
@@ -48,7 +48,7 @@ import {
   singletonSelector,
   terminalSelector,
   valSelector,
-  voidSelector,
+  voidSelector
 } from './selector.js';
 
 type IdentityFunction = (e: Element) => string | number;
@@ -63,498 +63,498 @@ export const tags: Record<
 > = {
   AccessControl: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   AccessPoint: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   Address: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   Association: {
     identity: associationIdentity,
-    selector: associationSelector,
+    selector: associationSelector
   },
   Authentication: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   BDA: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   BitRate: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   Bay: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   ClientLN: {
     identity: clientLNIdentity,
-    selector: clientLNSelector,
+    selector: clientLNSelector
   },
   ClientServices: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   CommProt: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   Communication: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   ConductingEquipment: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   ConfDataSet: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   ConfLdName: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   ConfLNs: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   ConfLogControl: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   ConfReportControl: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   ConfSG: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   ConfSigRef: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   ConnectedAP: {
     identity: connectedAPIdentity,
-    selector: connectedAPSelector,
+    selector: connectedAPSelector
   },
   ConnectivityNode: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   DA: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   DAI: {
     identity: ixNamingIdentity,
-    selector: ixNamingSelector,
+    selector: ixNamingSelector
   },
   DAType: {
     identity: idNamingIdentity,
-    selector: idNamingSelector,
+    selector: idNamingSelector
   },
   DO: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   DOI: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   DOType: {
     identity: idNamingIdentity,
-    selector: idNamingSelector,
+    selector: idNamingSelector
   },
   DataObjectDirectory: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   DataSet: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   DataSetDirectory: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   DataTypeTemplates: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   DynAssociation: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   DynDataSet: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   EnumType: {
     identity: idNamingIdentity,
-    selector: idNamingSelector,
+    selector: idNamingSelector
   },
   EnumVal: {
     identity: enumValIdentity,
-    selector: enumValSelector,
+    selector: enumValSelector
   },
   EqFunction: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   EqSubFunction: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   ExtRef: {
     identity: extRefIdentity,
-    selector: extRefSelector,
+    selector: extRefSelector
   },
   FCDA: {
     identity: fCDAIdentity,
-    selector: fCDASelector,
+    selector: fCDASelector
   },
   FileHandling: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   Function: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   GeneralEquipment: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   GetCBValues: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   GetDataObjectDefinition: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   GetDataSetValue: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   GetDirectory: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   GOOSE: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   GOOSESecurity: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   GSE: {
     identity: controlBlockIdentity,
-    selector: controlBlockSelector,
+    selector: controlBlockSelector
   },
   GSEDir: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   GSEControl: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   GSESettings: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   GSSE: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   Header: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   History: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   Hitem: {
     identity: hitemIdentity,
-    selector: hitemSelector,
+    selector: hitemSelector
   },
   IED: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   IEDName: {
     identity: iEDNameIdentity,
-    selector: iEDNameSelector,
+    selector: iEDNameSelector
   },
   Inputs: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   IssuerName: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   KDC: {
     identity: kDCIdentity,
-    selector: kDCSelector,
+    selector: kDCSelector
   },
   LDevice: {
     identity: lDeviceIdentity,
-    selector: lDeviceSelector,
+    selector: lDeviceSelector
   },
   LN: {
     identity: lNIdentity,
-    selector: lNSelector,
+    selector: lNSelector
   },
   LN0: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   LNode: {
     identity: lNodeIdentity,
-    selector: lNodeSelector,
+    selector: lNodeSelector
   },
   LNodeType: {
     identity: idNamingIdentity,
-    selector: idNamingSelector,
+    selector: idNamingSelector
   },
   Line: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   Log: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   LogControl: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   LogSettings: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   MaxTime: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   McSecurity: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   MinTime: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   NeutralPoint: {
     identity: terminalIdentity,
-    selector: terminalSelector,
+    selector: terminalSelector
   },
   OptFields: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   P: {
     identity: pIdentity,
-    selector: pSelector,
+    selector: pSelector
   },
   PhysConn: {
     identity: physConnIdentity,
-    selector: physConnSelector,
+    selector: physConnSelector
   },
   PowerTransformer: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   Private: {
     identity: () => NaN,
-    selector: () => voidSelector,
+    selector: () => voidSelector
   },
   Process: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   ProtNs: {
     identity: protNsIdentity,
-    selector: protNsSelector,
+    selector: protNsSelector
   },
   Protocol: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   ReadWrite: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   RedProt: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   ReportControl: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   ReportSettings: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   RptEnabled: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   SamplesPerSec: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   SampledValueControl: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   SecPerSamples: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   SCL: {
     identity: sCLIdentity,
-    selector: sCLSelector,
+    selector: sCLSelector
   },
   SDI: {
     identity: ixNamingIdentity,
-    selector: ixNamingSelector,
+    selector: ixNamingSelector
   },
   SDO: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   Server: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   ServerAt: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   Services: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   SetDataSetValue: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   SettingControl: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   SettingGroups: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   SGEdit: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   SmpRate: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   SMV: {
     identity: controlBlockIdentity,
-    selector: controlBlockSelector,
+    selector: controlBlockSelector
   },
   SmvOpts: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   SMVsc: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   SMVSecurity: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   SMVSettings: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   SubEquipment: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   SubFunction: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   SubNetwork: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   Subject: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   Substation: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   SupSubscription: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   TapChanger: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   Terminal: {
     identity: terminalIdentity,
-    selector: terminalSelector,
+    selector: terminalSelector
   },
   Text: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   TimerActivatedControl: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   TimeSyncProt: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   TransformerWinding: {
     identity: namingIdentity,
-    selector: namingSelector,
+    selector: namingSelector
   },
   TrgOps: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   Val: {
     identity: valIdentity,
-    selector: valSelector,
+    selector: valSelector
   },
   ValueHandling: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   Voltage: {
     identity: singletonIdentity,
-    selector: singletonSelector,
+    selector: singletonSelector
   },
   VoltageLevel: {
     identity: namingIdentity,
-    selector: namingSelector,
-  },
+    selector: namingSelector
+  }
 };
