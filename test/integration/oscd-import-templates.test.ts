@@ -8,15 +8,19 @@ import {
   // sendKeys
 } from '@web/test-runner-commands';
 
-import { fixture, html } from '@open-wc/testing';
+import { expect, fixture, html } from '@open-wc/testing';
 
 import '@openscd/open-scd-core/open-scd.js';
 import type { OpenSCD } from '@openscd/open-scd-core/open-scd.js';
-import type ImportTemplateIedPlugin from '../../oscd-import-templates.js';
+import { spy } from 'sinon';
 
 // import { test, expect } from '@playwright/test';
 
+import { IconButton } from '@material/mwc-icon-button';
+import { ListItem } from '@material/mwc-list/mwc-list-item.js';
+
 // import { midEl } from './test-support.js';
+import ImportTemplateIedPlugin from '../../oscd-import-templates.js';
 
 const factor = window.process && process.env.CI ? 4 : 2;
 
@@ -69,12 +73,10 @@ describe(pluginName, () => {
           icon: 'save',
           active: true,
           src: 'https://openscd.github.io/oscd-save/oscd-save.js'
-        }
-      ],
-      editor: [
+        },
         {
           name: 'Import Templates',
-          icon: 'plugin',
+          icon: 'extension',
           active: true,
           src: '/dist/oscd-import-templates.js'
         }
@@ -109,9 +111,14 @@ describe(pluginName, () => {
     document.body.prepend(ed);
 
     editor = document.querySelector('open-scd')!;
+
+    // select the last menu plugin
     plugin = document
       .querySelector('open-scd')!
-      .shadowRoot!.querySelector(editor.editor)!;
+      .shadowRoot!.querySelector('aside')!
+      .lastElementChild! as ImportTemplateIedPlugin;
+
+    await timeout(standardWait * 4);
 
     await document.fonts.ready;
   });
@@ -124,14 +131,14 @@ describe(pluginName, () => {
 
   let doc: XMLDocument;
 
-  describe('Imports templates', () => {
-    describe('shows something', () => {
+  describe('imports templates', () => {
+    describe('loads and shows templates', () => {
       beforeEach(async () => {
         localStorage.clear();
         await tryViewportSet();
         resetMouse();
 
-        doc = await fetch('test/fixtures/new.scd')
+        doc = await fetch('/test/fixtures/new.scd')
           .then(response => response.text())
           .then(str => new DOMParser().parseFromString(str, 'application/xml'));
 
@@ -139,18 +146,45 @@ describe(pluginName, () => {
         editor.docs[editor.docName] = doc;
 
         await editor.updateComplete;
-        await plugin.updateComplete;
       });
 
       afterEach(async () => {
         localStorage.clear();
       });
 
-      it('shows the basic UI', async function () {
-        await tryViewportSet();
-        resetMouse();
-
+      it('attempts to load files', async function () {
+        const pluginSpy = spy(plugin, 'renderInput');
+        console.log(plugin);
+        const menuButton: IconButton = editor
+          .shadowRoot!.querySelector('mwc-top-app-bar-fixed')!
+          .querySelector('mwc-icon-button[label="Menu"]')!;
+        menuButton.click();
         await timeout(standardWait);
+
+        const menuList = editor
+          .shadowRoot!.querySelector('mwc-drawer')!
+          .querySelector('mwc-list')!;
+        // it is the third plugin
+        const menuPlugin = menuList.querySelector(
+          'mwc-list-item:nth-of-type(3)'
+        )! as ListItem;
+
+        menuPlugin.click();
+
+        expect(pluginSpy.called);
+        (<any>pluginSpy).renderInput.restore();
+
+        // doc = await fetch('/test/fixtures/no-IEDs-present.scd')
+        //   .then(response => response.text())
+        //   .then(str => new DOMParser().parseFromString(str, 'application/xml'));
+
+        // editor.docName = 'no-IEDS.scd';
+        // editor.docs[editor.docName] = doc;
+
+        // await editor.updateComplete;
+        // await plugin.updateComplete;
+
+        await timeout(standardWait * 2);
         await resetMouseState();
         await visualDiff(plugin, testName(this));
       });

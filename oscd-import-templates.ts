@@ -15,8 +15,8 @@ import '@material/mwc-textfield';
 import type { TextField } from '@material/mwc-textfield';
 
 function uniqueTemplateIedName(doc: XMLDocument, ied: Element): string {
-  const [manufacturer, type] = ['manufacturer', 'type'].map(
-    attr => ied.getAttribute(attr)?.replace(/[^A-Za-z0-9_]/, '')
+  const [manufacturer, type] = ['manufacturer', 'type'].map(attr =>
+    ied.getAttribute(attr)?.replace(/[^A-Za-z0-9_]/, '')
   );
   const nameCore =
     manufacturer || type
@@ -264,7 +264,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
     });
   }
 
-  protected renderInput(): TemplateResult {
+  renderInput(): TemplateResult {
     return html`<input multiple @change=${(event: Event) => {
       this.onLoadFiles(event);
       // eslint-disable-next-line no-param-reassign
