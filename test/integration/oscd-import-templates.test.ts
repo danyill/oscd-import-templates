@@ -1,26 +1,19 @@
 /* eslint-disable func-names */
 import { visualDiff } from '@web/test-runner-visual-regression';
 
-import {
-  setViewport,
-  resetMouse,
-  sendMouse
-  // sendKeys
-} from '@web/test-runner-commands';
+import { setViewport, resetMouse } from '@web/test-runner-commands';
 
 import { expect, fixture, html } from '@open-wc/testing';
 
 import '@openscd/open-scd-core/open-scd.js';
 import type { OpenSCD } from '@openscd/open-scd-core/open-scd.js';
-import { spy } from 'sinon';
-
-// import { test, expect } from '@playwright/test';
+import { SinonStub, restore, stub } from 'sinon';
 
 import { IconButton } from '@material/mwc-icon-button';
 import { ListItem } from '@material/mwc-list/mwc-list-item.js';
 
-// import { midEl } from './test-support.js';
-import ImportTemplateIedPlugin from '../../oscd-import-templates.js';
+import type { TextField } from '@material/mwc-textfield';
+import type ImportTemplateIedPlugin from '../../oscd-import-templates.js';
 
 const factor = window.process && process.env.CI ? 4 : 2;
 
@@ -41,12 +34,6 @@ function testName(test: any): string {
 async function tryViewportSet(): Promise<void> {
   // target 1920x1080 screen-resolution, giving typical browser size of...
   await setViewport({ width: 1745, height: 1045 });
-}
-
-async function resetMouseState(): Promise<void> {
-  await timeout(70);
-  await resetMouse();
-  await sendMouse({ type: 'click', position: [0, 0] });
 }
 
 // avoid prefix on screenshots
@@ -118,13 +105,14 @@ describe(pluginName, () => {
       .shadowRoot!.querySelector('aside')!
       .lastElementChild! as ImportTemplateIedPlugin;
 
-    await timeout(standardWait * 4);
-
+    await timeout(standardWait * 6);
     await document.fonts.ready;
   });
 
   afterEach(() => {
-    editor.remove();
+    restore();
+    // TODO: Why? The following line needs to be commented, otherwise, errors in tests
+    // editor.remove();
     plugin.remove();
     script.remove();
   });
@@ -132,62 +120,363 @@ describe(pluginName, () => {
   let doc: XMLDocument;
 
   describe('imports templates', () => {
-    describe('loads and shows templates', () => {
-      beforeEach(async () => {
-        localStorage.clear();
-        await tryViewportSet();
-        resetMouse();
+    beforeEach(async () => {
+      localStorage.clear();
+      await tryViewportSet();
+      resetMouse();
 
-        doc = await fetch('/test/fixtures/new.scd')
-          .then(response => response.text())
-          .then(str => new DOMParser().parseFromString(str, 'application/xml'));
+      doc = await fetch('/test/fixtures/new.scd')
+        .then(response => response.text())
+        .then(str => new DOMParser().parseFromString(str, 'application/xml'));
 
-        editor.docName = 'new.scd';
-        editor.docs[editor.docName] = doc;
+      editor.docName = 'new.scd';
+      editor.docs[editor.docName] = doc;
 
-        await editor.updateComplete;
+      await timeout(standardWait);
+      await editor.updateComplete;
+    });
+
+    afterEach(async () => {
+      localStorage.clear();
+      restore();
+    });
+
+    it('attempts to load files', async () => {
+      // expect(plugin.pluginFileUI).to.not.be.null;
+
+      // we stub this as the file chooser dialog can only
+      // be shown with a user activation
+      const inputElement = (<SinonStub>(
+        stub(plugin.pluginFileUI, 'click')
+      )).callsFake(() => {});
+
+      const menuButton: IconButton = editor
+        .shadowRoot!.querySelector('mwc-top-app-bar-fixed')!
+        .querySelector('mwc-icon-button[label="Menu"]')!;
+      menuButton.click();
+      await timeout(standardWait);
+
+      const menuList = editor
+        .shadowRoot!.querySelector('mwc-drawer')!
+        .querySelector('mwc-list')!;
+
+      // it is the third plugin
+      const menuPlugin = menuList.querySelector(
+        'mwc-list-item:nth-of-type(3)'
+      )! as ListItem;
+
+      menuPlugin.click();
+      await timeout(standardWait * 5);
+
+      expect(inputElement).calledOnce;
+      inputElement.restore();
+    });
+
+    it('opens a dialog for a single IED', async function () {
+      // we stub the files input as the file chooser dialog can only
+      // be shown with a user activation
+      const inputElement = (<SinonStub>(
+        stub(plugin.pluginFileUI, 'click')
+      )).callsFake(() => {});
+
+      const menuButton: IconButton = editor
+        .shadowRoot!.querySelector('mwc-top-app-bar-fixed')!
+        .querySelector('mwc-icon-button[label="Menu"]')!;
+      menuButton.click();
+      await timeout(standardWait);
+
+      const menuList = editor
+        .shadowRoot!.querySelector('mwc-drawer')!
+        .querySelector('mwc-list')!;
+
+      // it is the third plugin
+      const menuPlugin = menuList.querySelector(
+        'mwc-list-item:nth-of-type(3)'
+      )! as ListItem;
+
+      // results from file chooser dialog
+      const template = await fetch('/test/fixtures/valid.icd');
+      const fileList = new DataTransfer();
+      const file = new File([await template.blob()], 'valid.icd', {
+        type: 'application/xml'
+      });
+      fileList.items.add(file);
+
+      // TODO: Figure out how to stub this using sinon
+      Object.defineProperty(plugin.pluginFileUI, 'files', {
+        writable: true,
+        value: fileList.files
       });
 
-      afterEach(async () => {
-        localStorage.clear();
+      menuPlugin.click();
+      plugin.pluginFileUI.dispatchEvent(new Event('change'));
+
+      await timeout(standardWait * 2);
+      await visualDiff(editor, testName(this));
+      inputElement.restore();
+    });
+
+    it('imports a single IED', async () => {
+      // we stub the files input as the file chooser dialog can only
+      // be shown with a user activation
+      const inputElement = (<SinonStub>(
+        stub(plugin.pluginFileUI, 'click')
+      )).callsFake(() => {});
+
+      const menuButton: IconButton = editor
+        .shadowRoot!.querySelector('mwc-top-app-bar-fixed')!
+        .querySelector('mwc-icon-button[label="Menu"]')!;
+      menuButton.click();
+      await timeout(standardWait);
+
+      const menuList = editor
+        .shadowRoot!.querySelector('mwc-drawer')!
+        .querySelector('mwc-list')!;
+
+      // it is the third plugin
+      const menuPlugin = menuList.querySelector(
+        'mwc-list-item:nth-of-type(3)'
+      )! as ListItem;
+
+      // results from file chooser dialog
+      const template = await fetch('/test/fixtures/valid.icd');
+      const fileList = new DataTransfer();
+      const file = new File([await template.blob()], 'valid.icd', {
+        type: 'application/xml'
+      });
+      fileList.items.add(file);
+
+      // TODO: Figure out how to stub this using sinon
+      Object.defineProperty(plugin.pluginFileUI, 'files', {
+        writable: true,
+        value: fileList.files
       });
 
-      it('attempts to load files', async function () {
-        const pluginSpy = spy(plugin, 'renderInput');
-        console.log(plugin);
-        const menuButton: IconButton = editor
-          .shadowRoot!.querySelector('mwc-top-app-bar-fixed')!
-          .querySelector('mwc-icon-button[label="Menu"]')!;
-        menuButton.click();
-        await timeout(standardWait);
+      menuPlugin.click();
+      plugin.pluginFileUI.dispatchEvent(new Event('change'));
 
-        const menuList = editor
-          .shadowRoot!.querySelector('mwc-drawer')!
-          .querySelector('mwc-list')!;
-        // it is the third plugin
-        const menuPlugin = menuList.querySelector(
-          'mwc-list-item:nth-of-type(3)'
-        )! as ListItem;
+      await timeout(standardWait);
 
-        menuPlugin.click();
+      const addButton = plugin.shadowRoot!.querySelector(
+        'mwc-button[slot="primaryAction"]'
+      )! as HTMLElement;
+      addButton.click();
 
-        expect(pluginSpy.called);
-        (<any>pluginSpy).renderInput.restore();
+      await plugin.updateComplete;
+      await editor.updateComplete;
+      await timeout(standardWait * 2);
 
-        // doc = await fetch('/test/fixtures/no-IEDs-present.scd')
-        //   .then(response => response.text())
-        //   .then(str => new DOMParser().parseFromString(str, 'application/xml'));
+      const iedName = editor.doc.querySelector('IED')!.getAttribute('name')!;
+      expect(iedName).to.equal('TestMan_TestType_01');
+      expect(editor.doc.querySelectorAll('IED').length).to.equal(1);
+      expect(editor.doc.querySelectorAll('Communication').length).to.equal(1);
+      expect(editor.doc.querySelectorAll('ConnectedAP').length).to.equal(1);
+      inputElement.restore();
+    });
 
-        // editor.docName = 'no-IEDS.scd';
-        // editor.docs[editor.docName] = doc;
+    it('imports a single IED without communications addresses', async function () {
+      // we stub the files input as the file chooser dialog can only
+      // be shown with a user activation
+      const inputElement = (<SinonStub>(
+        stub(plugin.pluginFileUI, 'click')
+      )).callsFake(() => {});
 
-        // await editor.updateComplete;
-        // await plugin.updateComplete;
+      const menuButton: IconButton = editor
+        .shadowRoot!.querySelector('mwc-top-app-bar-fixed')!
+        .querySelector('mwc-icon-button[label="Menu"]')!;
+      menuButton.click();
+      await timeout(standardWait);
 
-        await timeout(standardWait * 2);
-        await resetMouseState();
-        await visualDiff(plugin, testName(this));
+      const menuList = editor
+        .shadowRoot!.querySelector('mwc-drawer')!
+        .querySelector('mwc-list')!;
+
+      // it is the third plugin
+      const menuPlugin = menuList.querySelector(
+        'mwc-list-item:nth-of-type(3)'
+      )! as ListItem;
+
+      // results from file chooser dialog
+      const template = await fetch('/test/fixtures/valid.icd');
+      const fileList = new DataTransfer();
+      const file = new File([await template.blob()], 'valid.icd', {
+        type: 'application/xml'
       });
+      fileList.items.add(file);
+
+      // TODO: Figure out how to stub this using sinon
+      Object.defineProperty(plugin.pluginFileUI, 'files', {
+        writable: true,
+        value: fileList.files
+      });
+
+      menuPlugin.click();
+      plugin.pluginFileUI.dispatchEvent(new Event('change'));
+
+      await timeout(standardWait);
+
+      const noCommsAddresses = plugin.shadowRoot!.querySelector(
+        'mwc-checkbox[id="comms-addresses"]'
+      )! as HTMLElement;
+      noCommsAddresses.click();
+
+      await resetMouse();
+      await timeout(standardWait);
+      await visualDiff(editor, testName(this));
+
+      const addButton = plugin.shadowRoot!.querySelector(
+        'mwc-button[slot="primaryAction"]'
+      )! as HTMLElement;
+      addButton.click();
+
+      await plugin.updateComplete;
+      await editor.updateComplete;
+      await timeout(standardWait * 2);
+
+      expect(editor.doc.querySelectorAll('IED').length).to.equal(1);
+      expect(editor.doc.querySelectorAll('Communication').length).to.equal(0);
+      expect(editor.doc.querySelectorAll('ConnectedAP').length).to.equal(0);
+      inputElement.restore();
+    });
+
+    it('imports a single IED multiple times', async () => {
+      // we stub the files input as the file chooser dialog can only
+      // be shown with a user activation
+      const inputElement = (<SinonStub>(
+        stub(plugin.pluginFileUI, 'click')
+      )).callsFake(() => {});
+
+      const menuButton: IconButton = editor
+        .shadowRoot!.querySelector('mwc-top-app-bar-fixed')!
+        .querySelector('mwc-icon-button[label="Menu"]')!;
+      menuButton.click();
+      await timeout(standardWait);
+
+      const menuList = editor
+        .shadowRoot!.querySelector('mwc-drawer')!
+        .querySelector('mwc-list')!;
+
+      // it is the third plugin
+      const menuPlugin = menuList.querySelector(
+        'mwc-list-item:nth-of-type(3)'
+      )! as ListItem;
+
+      // results from file chooser dialog
+      const template = await fetch('/test/fixtures/valid.icd');
+      const fileList = new DataTransfer();
+      const file = new File([await template.blob()], 'valid.icd', {
+        type: 'application/xml'
+      });
+      fileList.items.add(file);
+
+      // TODO: Figure out how to stub this using sinon
+      Object.defineProperty(plugin.pluginFileUI, 'files', {
+        writable: true,
+        value: fileList.files
+      });
+
+      menuPlugin.click();
+      plugin.pluginFileUI.dispatchEvent(new Event('change'));
+
+      await timeout(standardWait);
+
+      const iedCount = plugin.shadowRoot!.querySelector(
+        'ul[id="icd-list"] mwc-textfield:nth-of-type(1)'
+      )! as TextField;
+      iedCount.value = '2';
+
+      const addButton = plugin.shadowRoot!.querySelector(
+        'mwc-button[slot="primaryAction"]'
+      )! as HTMLElement;
+      addButton.click();
+
+      await plugin.updateComplete;
+      await editor.updateComplete;
+      await timeout(standardWait * 2);
+
+      expect(editor.doc.querySelectorAll('IED').length).to.equal(2);
+      const iedNames = Array.from(editor.doc.querySelectorAll('IED')).map(ied =>
+        ied.getAttribute('name')
+      );
+      expect(iedNames).to.deep.equal([
+        'TestMan_TestType_02',
+        'TestMan_TestType_01'
+      ]);
+      expect(editor.doc.querySelectorAll('Communication').length).to.equal(1);
+      expect(editor.doc.querySelectorAll('ConnectedAP').length).to.equal(2);
+      inputElement.restore();
+    });
+
+    it('imports multiple IEDs', async function () {
+      // we stub the files input as the file chooser dialog can only
+      // be shown with a user activation
+      const inputElement = (<SinonStub>(
+        stub(plugin.pluginFileUI, 'click')
+      )).callsFake(() => {});
+
+      const menuButton: IconButton = editor
+        .shadowRoot!.querySelector('mwc-top-app-bar-fixed')!
+        .querySelector('mwc-icon-button[label="Menu"]')!;
+      menuButton.click();
+      await timeout(standardWait);
+
+      const menuList = editor
+        .shadowRoot!.querySelector('mwc-drawer')!
+        .querySelector('mwc-list')!;
+
+      // it is the third plugin
+      const menuPlugin = menuList.querySelector(
+        'mwc-list-item:nth-of-type(3)'
+      )! as ListItem;
+
+      // results from file chooser dialog
+      const fileList = new DataTransfer();
+      const template = await fetch('/test/fixtures/valid.icd');
+      const file = new File([await template.blob()], 'valid.icd', {
+        type: 'application/xml'
+      });
+
+      fileList.items.add(file);
+
+      const template2 = await fetch('/test/fixtures/alsovalid.icd');
+      const file2 = new File([await template2.blob()], 'alsovalid.icd', {
+        type: 'application/xml'
+      });
+
+      fileList.items.add(file2);
+      // TODO: Figure out how to stub this using sinon
+      Object.defineProperty(plugin.pluginFileUI, 'files', {
+        writable: true,
+        value: fileList.files
+      });
+
+      menuPlugin.click();
+      plugin.pluginFileUI.dispatchEvent(new Event('change'));
+
+      await resetMouse();
+      await timeout(standardWait);
+      await visualDiff(editor, testName(this));
+
+      const addButton = plugin.shadowRoot!.querySelector(
+        'mwc-button[slot="primaryAction"]'
+      )! as HTMLElement;
+      addButton.click();
+
+      await plugin.updateComplete;
+      await editor.updateComplete;
+      await timeout(standardWait * 2);
+
+      expect(editor.doc.querySelectorAll('IED').length).to.equal(2);
+      const iedNames = Array.from(editor.doc.querySelectorAll('IED')).map(ied =>
+        ied.getAttribute('name')
+      );
+      expect(iedNames).to.deep.equal([
+        'TestMan2_AnotherTestType_01',
+        'TestMan_TestType_01'
+      ]);
+      expect(editor.doc.querySelectorAll('Communication').length).to.equal(1);
+      expect(editor.doc.querySelectorAll('ConnectedAP').length).to.equal(2);
+      inputElement.restore();
     });
   });
 });

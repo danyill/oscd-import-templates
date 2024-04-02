@@ -265,11 +265,17 @@ export default class ImportTemplateIedPlugin extends LitElement {
   }
 
   renderInput(): TemplateResult {
-    return html`<input multiple @change=${(event: Event) => {
-      this.onLoadFiles(event);
-      // eslint-disable-next-line no-param-reassign
-      (<HTMLInputElement>event.target).value = '';
-    }} id="importTemplateIED-plugin-input" accept=".icd" type="file"></input>`;
+    return html`<input
+      multiple
+      @change=${(event: Event) => {
+        this.onLoadFiles(event);
+        // eslint-disable-next-line no-param-reassign
+        (<HTMLInputElement>event.target).value = '';
+      }}
+      id="importTemplateIED-plugin-input"
+      accept=".icd"
+      type="file"
+    />`;
   }
 
   // eslint-disable-next-line class-methods-use-this

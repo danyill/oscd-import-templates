@@ -11,6 +11,7 @@
 
 ## testing
 /coverage/
+/test/screenshots/failed/
 
 ## temp folders
 /.tmp/
