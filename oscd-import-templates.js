@@ -1032,6 +1032,28 @@ function isDataTypeConnectionToIed(dataType, newIed) {
         .concat(Array.from(newIed.getElementsByTagName("LN")))
         .some((anyLn) => anyLn.getAttribute("lnType") === id);
 }
+/**
+ * Generates a new DTT section id in case of a collision by adding a number in hex
+ * prefixed with an underscore to the existing id.
+ *
+ * @param existingId - Existing string for id attribute.
+ * @param existingLNodeType - Existing LNodeType for which a new ID is required.
+ * @param dataTypeTemplates - Existing Element of DTTs from the SCL file.
+ * @returns New string which is unique in the DTT section.
+ */
+function generateNewId(existingId, newIed, existingLNodeType, dataTypeTemplates) {
+    const iedName = newIed.getAttribute("name");
+    const tagType = existingLNodeType.tagName;
+    const duplicatesFound = function (counter) {
+        return !!dataTypeTemplates.querySelector(`${tagType}[id="${existingId}@${iedName}#${counter.toString(10)}"]`);
+    };
+    let counter = 1;
+    // 2,000 limit reasonable way to avoid infinite loop
+    while (duplicatesFound(counter) && counter < 2000) {
+        counter += 1;
+    }
+    return `${existingId}@${iedName}#${counter.toString(10)}`;
+}
 function addEnumType(newIed, newEnumType, oldDataTypeTemplates) {
     if (!isDataTypeConnectionToIed(newEnumType, newIed))
         return;
@@ -1043,7 +1065,7 @@ function addEnumType(newIed, newEnumType, oldDataTypeTemplates) {
         // concatenating the IED name with the id
         const data = newEnumType.parentElement;
         const idOld = newEnumType.getAttribute("id");
-        const idNew = newIed.getAttribute("name") + idOld;
+        const idNew = generateNewId(idOld, newIed, existEnumType, oldDataTypeTemplates);
         newEnumType.setAttribute("id", idNew);
         data
             .querySelectorAll(`DOType > DA[type="${idOld}"],DAType > BDA[type="${idOld}"]`)
@@ -1066,7 +1088,7 @@ function addDAType(newIed, newDAType, oldDataTypeTemplates) {
         // concatenating the IED name with the id
         const data = newDAType.parentElement;
         const idOld = newDAType.getAttribute("id");
-        const idNew = newIed.getAttribute("name") + idOld;
+        const idNew = generateNewId(idOld, newIed, existDAType, oldDataTypeTemplates);
         newDAType.setAttribute("id", idNew);
         data
             .querySelectorAll(`DOType > DA[type="${idOld}"],DAType > BDA[type="${idOld}"]`)
@@ -1089,7 +1111,7 @@ function addDOType(newIed, newDOType, oldDataTypeTemplates) {
         // concatenating the IED name with the id
         const data = newDOType.parentElement;
         const idOld = newDOType.getAttribute("id");
-        const idNew = newIed.getAttribute("name") + idOld;
+        const idNew = generateNewId(idOld, newIed, existDOType, oldDataTypeTemplates);
         newDOType.setAttribute("id", idNew);
         data
             .querySelectorAll(`LNodeType > DO[type="${idOld}"], DOType > SDO[type="${idOld}"]`)
@@ -1111,7 +1133,7 @@ function addLNodeType(newIed, newLNodeType, oldDataTypeTemplates) {
         // There is an `id` conflict in the project that must be resolved by
         // concatenating the IED name with the id
         const idOld = newLNodeType.getAttribute("id");
-        const idNew = newIed.getAttribute("name").concat(idOld);
+        const idNew = generateNewId(idOld, newIed, existLNodeType, oldDataTypeTemplates);
         newLNodeType.setAttribute("id", idNew);
         Array.from(newIed.querySelectorAll(`LN0[lnType="${idOld}"],LN[lnType="${idOld}"]`))
             .filter((anyLn) => !anyLn.closest("Private"))
@@ -1183,6 +1205,11 @@ function insertIed(scl, ied, options = { addCommunicationSection: true }) {
     return [...insertCommunication, insertIed, ...insertDataTypes];
 }
 
+/** @returns Whether a given element is within a Private section */
+function isPublic(element) {
+    return !element.closest("Private");
+}
+
 /** maximum value for `lnInst` attribute */
 const maxLnInst = 99;
 Array(maxLnInst)
@@ -1223,11 +1250,6 @@ Array(maxSmvAppId - minSmvAppId)
     .map((_, i) => (minSmvAppId + i).toString(16).toUpperCase().padStart(4, "0"));
 
 await fetch(new URL(new URL('assets/nsd-0a370a57.json', import.meta.url).href, import.meta.url)).then((res) => res.json());
-
-/** @returns Whether a given element is within a Private section */
-function isPublic(element) {
-    return !element.closest("Private");
-}
 
 function newEditEvent(edit) {
     return new CustomEvent('oscd-edit', {
