@@ -217,6 +217,15 @@ describe(pluginName, () => {
     });
 
     it('imports a single IED', async () => {
+      doc = await fetch('/test/fixtures/new_blank.scd')
+        .then(response => response.text())
+        .then(str => new DOMParser().parseFromString(str, 'application/xml'));
+
+      editor.docName = 'new_blank.scd';
+      editor.docs[editor.docName] = doc;
+
+      await timeout(standardWait * 2);
+      await editor.updateComplete;
       // we stub the files input as the file chooser dialog can only
       // be shown with a user activation
       const inputElement = (<SinonStub>(
@@ -271,6 +280,22 @@ describe(pluginName, () => {
       expect(editor.doc.querySelectorAll('IED').length).to.equal(1);
       expect(editor.doc.querySelectorAll('Communication').length).to.equal(1);
       expect(editor.doc.querySelectorAll('ConnectedAP').length).to.equal(1);
+      expect(editor.doc.querySelectorAll('LNodeType').length).to.equal(5);
+      expect(editor.doc.querySelectorAll('DOType').length).to.equal(12);
+      expect(editor.doc.querySelectorAll('DAType').length).to.equal(5);
+      expect(editor.doc.querySelectorAll('EnumType').length).to.equal(4);
+      expect(
+        editor.doc.documentElement.getAttributeNS(
+          'http://www.w3.org/2000/xmlns/',
+          'eTest1'
+        )
+      ).to.equal('http://www.eTest1.com/2022/Better61850');
+      expect(
+        editor.doc.documentElement.getAttributeNS(
+          'http://www.w3.org/2000/xmlns/',
+          'eTest2'
+        )
+      ).to.equal('http://www.eTest2.com/2032/Better61850ForReal');
       inputElement.restore();
     });
 
@@ -333,7 +358,7 @@ describe(pluginName, () => {
       await editor.updateComplete;
       await timeout(standardWait * 2);
 
-      expect(editor.doc.querySelectorAll('IED').length).to.equal(1);
+      expect(editor.doc.querySelectorAll('IED').length).to.equal(2);
       expect(editor.doc.querySelectorAll('Communication').length).to.equal(0);
       expect(editor.doc.querySelectorAll('ConnectedAP').length).to.equal(0);
       inputElement.restore();
@@ -384,6 +409,7 @@ describe(pluginName, () => {
         'ul[id="icd-list"] mwc-textfield:nth-of-type(1)'
       )! as TextField;
       iedCount.value = '2';
+      iedCount.dispatchEvent(new Event('input'));
 
       const addButton = plugin.shadowRoot!.querySelector(
         'mwc-button[slot="primaryAction"]'
@@ -394,13 +420,14 @@ describe(pluginName, () => {
       await editor.updateComplete;
       await timeout(standardWait * 2);
 
-      expect(editor.doc.querySelectorAll('IED').length).to.equal(2);
+      expect(editor.doc.querySelectorAll('IED').length).to.equal(3);
       const iedNames = Array.from(editor.doc.querySelectorAll('IED')).map(ied =>
         ied.getAttribute('name')
       );
       expect(iedNames).to.deep.equal([
         'TestMan_TestType_02',
-        'TestMan_TestType_01'
+        'TestMan_TestType_01',
+        'Base'
       ]);
       expect(editor.doc.querySelectorAll('Communication').length).to.equal(1);
       expect(editor.doc.querySelectorAll('ConnectedAP').length).to.equal(2);
@@ -444,6 +471,14 @@ describe(pluginName, () => {
       });
 
       fileList.items.add(file2);
+
+      const template3 = await fetch('/test/fixtures/nomanufacturer.icd');
+      const file3 = new File([await template3.blob()], 'nomanufacturer.icd', {
+        type: 'application/xml'
+      });
+
+      fileList.items.add(file3);
+
       // TODO: Figure out how to stub this using sinon
       Object.defineProperty(plugin.pluginFileUI, 'files', {
         writable: true,
@@ -466,16 +501,18 @@ describe(pluginName, () => {
       await editor.updateComplete;
       await timeout(standardWait * 2);
 
-      expect(editor.doc.querySelectorAll('IED').length).to.equal(2);
+      expect(editor.doc.querySelectorAll('IED').length).to.equal(4);
       const iedNames = Array.from(editor.doc.querySelectorAll('IED')).map(ied =>
         ied.getAttribute('name')
       );
       expect(iedNames).to.deep.equal([
-        'TestMan2_AnotherTestType_01',
-        'TestMan_TestType_01'
+        'TEMPLATE_IED_01',
+        'TestMan_TestType_01',
+        'testtype_01',
+        'Base'
       ]);
       expect(editor.doc.querySelectorAll('Communication').length).to.equal(1);
-      expect(editor.doc.querySelectorAll('ConnectedAP').length).to.equal(2);
+      expect(editor.doc.querySelectorAll('ConnectedAP').length).to.equal(3);
       inputElement.restore();
     });
   });

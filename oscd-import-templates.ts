@@ -15,17 +15,18 @@ import '@material/mwc-textfield';
 import type { TextField } from '@material/mwc-textfield';
 
 function uniqueTemplateIedName(doc: XMLDocument, ied: Element): string {
+  // replace invalid characters
   const [manufacturer, type] = ['manufacturer', 'type'].map(attr =>
     ied.getAttribute(attr)?.replace(/[^A-Za-z0-9_]/, '')
   );
   const nameCore =
     manufacturer || type
-      ? `${manufacturer ?? ''}${type ? `_${type}` : ''}`
+      ? `${manufacturer ?? ''}${manufacturer && type ? '_' : ''}${type ? `${type}` : ''}`
       : 'TEMPLATE_IED';
 
   const siblingNames = Array.from(doc.querySelectorAll('IED'))
     .filter(isPublic)
-    .map(child => child.getAttribute('name') ?? child.tagName);
+    .map(child => child.getAttribute('name'));
   if (!siblingNames.length) return `${nameCore}_01`;
 
   let newName = '';
@@ -43,7 +44,7 @@ function getTemplateIedDescription(doc: Document): {
   firstLine: string;
   secondLine: string;
 } {
-  const templateIed = doc?.querySelector(':root > IED[name="TEMPLATE"]');
+  const templateIed = doc.querySelector(':root > IED[name="TEMPLATE"]');
   const [
     manufacturer,
     type,
@@ -60,11 +61,12 @@ function getTemplateIedDescription(doc: Document): {
     'originalSclVersion',
     'originalSclRevision',
     'originalSclRelease'
-  ].map(attr => templateIed?.getAttribute(attr));
+  ].map(attr => templateIed!.getAttribute(attr));
 
-  const firstLine = [manufacturer, type]
-    .filter(val => val !== null)
-    .join(' - ');
+  const firstLine =
+    manufacturer || type
+      ? [manufacturer, type].filter(val => val !== null).join(' - ')
+      : 'Unknown Manufacturer or Type';
 
   const schemaInformation = [
     originalSclVersion,
@@ -181,6 +183,7 @@ export default class ImportTemplateIedPlugin extends LitElement {
 
       // Update communication elements for new name
       // TODO: What else needs to be updated if anything?
+      // Could also consider using updateIED from scl-lib
       Array.from(
         newDocument.querySelectorAll(
           ':root > Communication > SubNetwork > ConnectedAP[iedName="TEMPLATE"]'
@@ -215,20 +218,22 @@ export default class ImportTemplateIedPlugin extends LitElement {
     this.dialog.close();
   }
 
+  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars
   public isImportValid(templateDoc: Document, filename: string): boolean {
+    // TODO: Handle errorStrings and display to user in case of failure.
     if (!templateDoc) {
-      this.errorString.push(`Could not load file in ${filename}`);
+      // this.errorString.push(`Could not load file in ${filename}`);
       return false;
     }
 
     if (templateDoc.querySelector('parsererror')) {
-      this.errorString.push(`Parser error in ${filename}`);
+      // this.errorString.push(`Parser error in ${filename}`);
       return false;
     }
 
     const ied = templateDoc.querySelector(':root > IED[name="TEMPLATE"]');
     if (!ied) {
-      this.errorString.push(`No Template IED element in the file ${filename}`);
+      // this.errorString.push(`No Template IED element in the file ${filename}`);
       return false;
     }
     return true;

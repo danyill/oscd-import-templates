@@ -35,7 +35,7 @@
 			</ConnectedAP>
 		</SubNetwork>
 	</Communication>
-	<IED name="TEMPLATE" originalSclVersion="2007" originalSclRevision="B" originalRelease="4" eTest2:New="fancy new attribute">
+	<IED name="TEMPLATE" type="test type" originalSclVersion="2007" originalSclRevision="B" originalRelease="4" eTest2:New="fancy new attribute">
 		<NewThing>
 			<P type="solution" />
 		</NewThing>
