@@ -397,11 +397,6 @@ ${secondLine}"
       --mdc-icon-size: 32px;
     }
 
-    .list-text,
-    mwc-textfield {
-      padding-right: 10px;
-    }
-
     mwc-icon {
       padding-right: 15px;
     }

@@ -142,6 +142,7 @@ describe(pluginName, () => {
     });
 
     it('attempts to load files', async () => {
+      await timeout(standardWait * 3);
       // expect(plugin.pluginFileUI).to.not.be.null;
 
       // we stub this as the file chooser dialog can only
